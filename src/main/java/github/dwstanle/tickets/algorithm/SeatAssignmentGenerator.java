@@ -1,12 +1,11 @@
 package github.dwstanle.tickets.algorithm;
 
-import github.dwstanle.tickets.algorithm.BookingMemento;
-import github.dwstanle.tickets.model.SeatAssignmentRequest;
+import github.dwstanle.tickets.model.ReservationRequest;
 
 import java.util.Set;
 
 public interface SeatAssignmentGenerator<T extends BookingMemento> {
-    Set<T> generateAllAvailable(SeatAssignmentRequest request, T originalBookingState);
-//    Set<SeatAssignmentResult<T>> generateAllAvailable(SeatAssignmentRequest<T> request, T originalBookingState);
+    Set<T> generateAllAvailable(ReservationRequest request, T originalBookingState);
+//    Set<ReservationResult<T>> generateAllAvailable(ReservationRequest<T> request, T originalBookingState);
 
 }

@@ -23,12 +23,17 @@ public class ReservationTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testImmutableSeatAssignments() {
-        reservation.getSeatAssignments().clear();
+        reservation.getSeats().clear();
     }
 
     @Test
     public void testGetSeatAssignments() {
-        assertEquals(1, reservation.getSeatAssignments().size());
-        assertTrue(reservation.getSeatAssignments().contains(seat));
+        assertEquals(1, reservation.getSeats().size());
+        assertTrue(reservation.getSeats().contains(seat));
+    }
+
+    @Test
+    public void testIdDoesNotChange() {
+        assertEquals(reservation.getId(), reservation.toBuilder().build().getId());
     }
 }

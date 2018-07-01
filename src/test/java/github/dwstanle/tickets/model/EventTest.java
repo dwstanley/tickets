@@ -23,7 +23,7 @@ public class EventTest {
 
     @Test
     public void getCurrentSeatMap() {
-        VenueMemento seatMap = event.getCurrentSeatMap();
+//        VenueMemento seatMap = event.getCurrentSeatMap();
         // todo
         throw new UnsupportedOperationException();
     }

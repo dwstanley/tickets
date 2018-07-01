@@ -3,7 +3,7 @@
 //import github.dwstanle.tickets.exception.IllegalRequestException;
 //import github.dwstanle.tickets.exception.ReservationNotFoundException;
 //import github.dwstanle.tickets.model.Reservation;
-//import github.dwstanle.tickets.model.SeatAssignmentRequest;
+//import github.dwstanle.tickets.model.ReservationRequest;
 //import github.dwstanle.tickets.service.impl.BasicReservationService;
 //import org.junit.Before;
 //import org.junit.Test;
@@ -13,7 +13,7 @@
 //public class ReservationServiceTest {
 //
 //    private ReservationService reservationService;
-//    private SeatAssignmentRequest simpleRequest;
+//    private ReservationRequest simpleRequest;
 //
 //
 //    @Before

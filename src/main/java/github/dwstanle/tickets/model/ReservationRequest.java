@@ -2,18 +2,21 @@ package github.dwstanle.tickets.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 
 import java.util.Optional;
 import java.util.Set;
 
 @Data
 @Builder(toBuilder=true)
-public class SeatAssignmentRequest {
+public class ReservationRequest {
 
 //    @NonNull
     private final Event event;
     private final Account account;
     private final int numberOfSeats;
-    private final Optional<Set<Seat>> requestedSeats;
+//    private final Optional<Set<Seat>> requestedSeats;
+    @Singular
+    private final Set<Seat> requestedSeats;
 
 }

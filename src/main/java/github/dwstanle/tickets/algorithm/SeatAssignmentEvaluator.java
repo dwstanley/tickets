@@ -6,5 +6,5 @@ import java.util.Collection;
 
 public interface SeatAssignmentEvaluator<T extends BookingMemento> {
     T findBest(Collection<T> assignmentOptions);
-//    SeatAssignmentResult<T> findBest(Collection<SeatAssignmentResult<T>> assignmentOptions);
+//    ReservationResult<T> findBest(Collection<ReservationResult<T>> assignmentOptions);
 }

@@ -8,20 +8,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public class SeatMap {
 
-    public static final String SIMPLE_LAYOUT_STR = "S,S,S,S,S,S,S,S\nA,A,A,A,A,A,A,A\nA,A,A,A,A,A,A,A\nA,A,A,A,A,A,A,A\nA,A,A,A,A,A,A,A\nA,A,A,A,A,A,A,A\nA,A,A,A,A,A,A,A";
+    public static String SIMPLE_LAYOUT_STR =
+                    "S S S S S S S S\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A";
 
     public static final SeatMap SIMPLE = fromString(SIMPLE_LAYOUT_STR);
 
     public static SeatMap fromPath(Path path) {
         List<List<String>> seatMap;
         try (Stream<String> lines = Files.lines(path)) {
-            seatMap = lines.map(SeatMap::splitCsvString).collect(toList());
+            seatMap = lines.map(s -> asList(s.split(","))).collect(toList());
         } catch (IOException ioe) {
             seatMap = new ArrayList<>();
             ioe.printStackTrace();
@@ -29,14 +39,14 @@ public class SeatMap {
         return new SeatMap(seatMap);
     }
 
-    public static SeatMap fromString(String layoutString) {
-        Stream<String> rows = Stream.of(layoutString.split("\n"));
-        List<List<String>> seatMap = rows.map(SeatMap::splitCsvString).collect(toList());
+    public static SeatMap fromString(String layoutStr) {
+        Stream<String> rows = Stream.of(layoutStr.split("\n"));
+        List<List<String>> seatMap = rows.map(s -> asList(s.split(" "))).collect(toList());
         return new SeatMap(seatMap);
     }
 
-    private static List<String> splitCsvString(String csvStr) {
-        return Arrays.asList(csvStr.split(","));
+    public static SeatMap fromSeatMap(SeatMap seatMap) {
+        return new SeatMap(seatMap.getRows().stream().map(ArrayList::new).collect(toList()));
     }
 
     private final List<List<String>> seats;

@@ -2,8 +2,8 @@
 //
 //import github.dwstanle.tickets.algorithm.SeatAssignmentGenerator;
 //import github.dwstanle.tickets.model.SeatAssignment;
-//import github.dwstanle.tickets.model.SeatAssignmentRequest;
-//import github.dwstanle.tickets.model.SeatAssignmentResult;
+//import github.dwstanle.tickets.model.ReservationRequest;
+//import github.dwstanle.tickets.model.ReservationResult;
 //import github.dwstanle.tickets.model.VenueMemento;
 //
 //import java.util.HashSet;
@@ -13,7 +13,7 @@
 //public class BasicSeatAssignmentGenerator implements SeatAssignmentGenerator {
 //
 //    @Override
-//    public Set<SeatAssignmentResult> generateAllAvailable(SeatAssignmentRequest request, VenueMemento venue) {
+//    public Set<ReservationResult> generateAllAvailable(ReservationRequest request, VenueMemento venue) {
 //        Set<SeatAssignment> assignments = new HashSet<>();
 //        // todo - return if request.NumSeats > venue.availSeats
 //        for (int row = 0; row <= venue.getRowCount(); row++) {

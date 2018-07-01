@@ -1,14 +1,16 @@
 package github.dwstanle.tickets.service;
 
-import github.dwstanle.tickets.model.SeatAssignmentRequest;
-import github.dwstanle.tickets.model.SeatAssignmentResult;
+import github.dwstanle.tickets.model.ReservationRequest;
+import github.dwstanle.tickets.model.ReservationResult;
 
 public interface ReservationService {
 
-    SeatAssignmentResult findAndHoldBestAvailable(SeatAssignmentRequest request);
+    ReservationResult findAndHoldBestAvailable(ReservationRequest request);
 
     String reserveSeats(int reservationId, String accountId);
 
-    SeatAssignmentResult holdSeats(SeatAssignmentRequest request);
+    ReservationResult holdSeats(ReservationRequest request);
+
+    void cancelReservation(int reservationId);
 
 }

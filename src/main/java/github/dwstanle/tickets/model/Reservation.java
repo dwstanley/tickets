@@ -1,26 +1,24 @@
 package github.dwstanle.tickets.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-//@Entity
+@Builder(toBuilder = true)
 public class Reservation {
 
 //    @Id
 //    @GeneratedValue
-    private final Integer id;
+//    private final Integer id;
+    @Builder.Default private Integer id = UUID.randomUUID().hashCode();
+
+    @Builder.Default private long timestamp = System.currentTimeMillis();
 
 //    @JsonIgnore
 //    @ManyToOne
@@ -35,22 +33,8 @@ public class Reservation {
 //    private final Set<SeatAssignment> seatAssignments;
     private final Set<Seat> seats;
 
-    private final String status;
+    private final SeatStatus status;
 
-//    public Reservation(Account account, Collection<SeatAssignment> seatAssignments) {
-//        this.account = Objects.requireNonNull(account);
-//        this.seatAssignments = new HashSet<>(Objects.requireNonNull(seatAssignments));
-//    }
 
-    // JPA only
-//    private Reservation() {
-//
-//    }
 
-//    public Set<SeatAssignment> getSeatAssignments() {
-//        return Collections.unmodifiableSet(seatAssignments);
-//    }
-    public Set<Seat> getSeatAssignments() {
-        return Collections.unmodifiableSet(seats);
-    }
 }

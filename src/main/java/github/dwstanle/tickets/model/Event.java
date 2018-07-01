@@ -28,16 +28,21 @@ public class Event {
 
     private Set<Reservation> reservations = new HashSet<>();
 
-    public VenueMemento getCurrentSeatMap() {
-        VenueMemento seatMap = VenueMemento.of(venue);
-        applyReservations(seatMap);
+    public SeatMap getCurrentSeatMap() {
+//        VenueMemento seatMap = VenueMemento.of(venue);
+
+        // todo copy seatmap
+//        SeatMap seatMap = venue.getLayout().copy();
+        SeatMap seatMap = venue.getLayout();
+
+//        applyReservations(seatMap);
 //        applyHoldings(seatMap);
         return seatMap;
     }
 
     private void applyReservations(VenueMemento seatMap) {
         reservations.stream()
-                .flatMap(reservation -> reservation.getSeatAssignments().stream())
+                .flatMap(reservation -> reservation.getSeats().stream())
                 .forEach(seat -> addReservation(seatMap, seat));
     }
 

@@ -1,7 +1,10 @@
 package github.dwstanle.tickets.service.impl;
 
-import github.dwstanle.tickets.algorithm.impl.BasicBookingMemento;
+import github.dwstanle.tickets.algorithm.SeatAssignmentEvaluator;
+import github.dwstanle.tickets.algorithm.SeatAssignmentGenerator;
 import github.dwstanle.tickets.algorithm.impl.BasicSeatFinderEngine;
+import github.dwstanle.tickets.algorithm.impl.StringListBookingMemento;
+import github.dwstanle.tickets.algorithm.impl.StringListBookingMementoFactory;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
@@ -10,9 +13,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.Instant;
+import java.util.Collections;
+
+import static github.dwstanle.tickets.model.SeatStatus.*;
+import static github.dwstanle.tickets.service.impl.BasicReservationService.HOLD_EXPIRATION_IN_MINUTES;
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -20,62 +28,320 @@ import static org.mockito.Mockito.when;
  */
 public class BasicReservationServiceTest {
 
+    public static String AFTER_RESERVATIONS_VENUE =
+            "S S S S S S S S\n" +
+                    "R R R A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A\n" +
+                    "A A A A A A A A";
+
     private Event event;
     private Account account;
-    private BasicReservationService<BasicBookingMemento> reservationService;
+    private ReservationRequest holdRequest;
+
+    private BasicReservationService<StringListBookingMemento> reservationService;
+
+    private StringListBookingMementoFactory factory;
+    private BasicSeatFinderEngine<StringListBookingMemento> engine;
+    private StringListBookingMemento memento;
 
     @Mock
-    BasicSeatFinderEngine<BasicBookingMemento> engine;
+    private SeatAssignmentGenerator<StringListBookingMemento> generator;
+
+    @Mock
+    private SeatAssignmentEvaluator<StringListBookingMemento> evaluator;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        this.account = new Account("test@email.com");
         this.event = new Event(new Venue(SeatMap.SIMPLE));
-//        BasicSeatFinderEngine<BasicBookingMemento> engine = new BasicSeatFinderEngine<>()
+        this.factory = new StringListBookingMementoFactory();
+        this.engine = new BasicSeatFinderEngine<>(generator, evaluator, factory);
         this.reservationService = new BasicReservationService<>(engine);
+        this.memento = engine.createMemento(SeatMap.SIMPLE);
+        this.holdRequest = ReservationRequest.builder()
+                .account(account)
+                .event(event)
+                .requestedSeat(new Seat(1, 1))
+                .requestedSeat(new Seat(1, 2))
+                .build();
+        when(generator.generateAllAvailable(any(), any())).thenReturn(singleton(memento));
+        when(evaluator.findBest(any())).thenReturn(memento);
     }
 
     @Test
     public void findAndHoldBestAvailable() {
 
+        ReservationRequest request = ReservationRequest.builder()
+                .account(account)
+                .event(event)
+                .numberOfSeats(2)
+                .build();
+
+        ReservationResult result = reservationService.findAndHoldBestAvailable(request);
+        assertEquals(account, result.getAccount());
+        assertTrue(result.isSuccess());
+
+        Reservation reservation = result.getReservation().get();
+        assertEquals(account, reservation.getAccount());
+        assertEquals(event, reservation.getEvent());
+        assertEquals(HELD, reservation.getStatus());
+        assertEquals(2, reservation.getSeats().size());
+
+        assertEquals(reservation, reservationService.findById(reservation.getId()));
+
+
+
+
+//        ReservationRequest request2 = ReservationRequest.builder()
+//                .account(account)
+//                .event(event)
+//                .numberOfSeats(-1)
+//                .build();
+//
+//        ReservationRequest request3 = ReservationRequest.builder()
+//                .account(account)
+//                .event(event)
+//                .numberOfSeats(0)
+//                .build();
+//
+//        ReservationRequest request4 = ReservationRequest.builder()
+//                .account(account)
+//                .event(event)
+//                .numberOfSeats(60)
+//                .build();
+//
+//        ReservationRequest request5 = ReservationRequest.builder()
+//                .account(account)
+//                .event(event)
+//                .requestedSeat(new Seat(1, 1))
+//                .requestedSeat(new Seat(1, 2))
+//                .build();
+
+    }
+
+    private void assertFailure(ReservationResult result) {
+        assertEquals(account, result.getAccount());
+        assertFalse(result.getReservation().isPresent());
+        assertFalse(result.isSuccess());
     }
 
     @Test
-    public void createVenueStateFromReservations() {
-        reservationService.doReserveSeats(getReservation(0, 0));
-        reservationService.doReserveSeats(getReservation(0, 1));
-        reservationService.doReserveSeats(getReservation(0, 2));
-
-        // should have first three seats reserved
-        BasicBookingMemento venueState = reservationService.createMementoFromReservations(event);
-//        vm.toString()
-
-        // should have no seats reserved
-        BasicBookingMemento venueState2 = reservationService.createMementoFromReservations(mock(Event.class));
+    public void findAndHoldBestAvailableTooFew() {
+        ReservationRequest request = holdRequest.toBuilder().numberOfSeats(-1).build();
+        assertFailure(reservationService.findAndHoldBestAvailable(request));
     }
 
-    @Test (expected = ReservationNotFoundException.class)
+    @Test
+    public void findAndHoldBestAvailableNone() {
+        ReservationRequest request = holdRequest.toBuilder().numberOfSeats(0).build();
+        assertFailure(reservationService.findAndHoldBestAvailable(request));
+    }
+
+        @Test
+    public void testReserveSeatsHeld() {
+        ReservationResult holdResult = reservationService.holdSeats(holdRequest);
+        Reservation reservation = holdResult.getReservation().get();
+        assertEquals("SUCCESS", reservationService.reserveSeats(reservation.getId(), account.getEmail()));
+    }
+
+    @Test(expected = ReservationNotFoundException.class)
     public void testReserveNotHeld() {
         reservationService.reserveSeats(0, "test@email.com");
     }
 
-    @Test (expected = IllegalRequestException.class)
+    @Test(expected = IllegalRequestException.class)
     public void testReserveHeldForSomeoneElse() {
-        reservationService.reserveSeats(0, "test@email.com");
+        ReservationResult holdResult = reservationService.holdSeats(holdRequest);
+        Reservation reservation = holdResult.getReservation().get();
+        reservationService.reserveSeats(reservation.getId(), "fake123@email.com");
     }
 
-    public void testReserveHeld() {
-        assertEquals("SUCCESS", reservationService.reserveSeats(0, "test@email.com"));
+    @Test(expected = IllegalRequestException.class)
+    public void testReserveIllegalAccountId() {
+        ReservationResult holdResult = reservationService.holdSeats(holdRequest);
+        Reservation reservation = holdResult.getReservation().get();
+        reservationService.reserveSeats(reservation.getId(), null);
     }
 
-    private Reservation getReservation(int row, int col) {
-        return Reservation.builder()
-                .id(0)
+    @Test
+    public void holdSeats() {
+
+        ReservationResult result = reservationService.holdSeats(holdRequest);
+        assertEquals(account, result.getAccount());
+        assertTrue(result.isSuccess());
+
+        Reservation reservation = result.getReservation().get();
+        assertEquals(account, reservation.getAccount());
+        assertEquals(event, reservation.getEvent());
+        assertEquals(HELD, reservation.getStatus());
+        assertEquals(2, reservation.getSeats().size());
+
+        assertEquals(reservation, reservationService.findById(reservation.getId()));
+
+    }
+
+    @Test
+    public void holdSeatsNoSeatsDefined() {
+        ReservationRequest request = ReservationRequest.builder()
                 .account(account)
                 .event(event)
-                .status("R")
-                .seats(singleton(new Seat(row, col)))
                 .build();
+        assertFailure(reservationService.holdSeats(request));
+    }
+
+    @Test
+    public void holdSeatsAlreadyHeld() {
+        reservationService.holdSeats(holdRequest);
+        assertFailure(reservationService.holdSeats(holdRequest));
+    }
+
+    @Test
+    public void holdSeatsAlreadyHeldBySomeoneElse() {
+        ReservationRequest duplicateRequest = holdRequest.toBuilder()
+                .account(new Account("fake123@email.com"))
+                .build();
+        reservationService.holdSeats(holdRequest);
+        assertFailure(reservationService.holdSeats(duplicateRequest));
+    }
+
+    @Test
+    public void holdSeatsOutOfRange() {
+
+        ReservationRequest request = holdRequest.toBuilder()
+                .requestedSeat(new Seat(10, 10))
+                .build();
+
+        ReservationResult result = reservationService.holdSeats(request);
+        assertFalse(result.getReservation().isPresent());
+        assertFalse(result.isSuccess());
+
+        assertFalse(reservationService.holdSeats(
+                holdRequest.toBuilder()
+                        .requestedSeat(new Seat(7, 5))
+                        .build()).isSuccess());
+
+        assertFalse(reservationService.holdSeats(
+                holdRequest.toBuilder()
+                        .requestedSeat(new Seat(5, 8))
+                        .build()).isSuccess());
+
+        assertFalse(reservationService.holdSeats(
+                holdRequest.toBuilder()
+                        .requestedSeat(new Seat(0, 0))
+                        .build()).isSuccess());
+
+        assertFalse(reservationService.holdSeats(
+                holdRequest.toBuilder()
+                        .requestedSeat(new Seat(-1, 2))
+                        .build()).isSuccess());
+
+        assertFalse(reservationService.holdSeats(
+                holdRequest.toBuilder()
+                        .requestedSeat(new Seat(2, -1))
+                        .build()).isSuccess());
+
+    }
+
+    @Test
+    public void holdSeatsNotAllowed() {
+        ReservationRequest request = holdRequest.toBuilder()
+                .requestedSeat(new Seat(0, 0))
+                .build();
+        assertFailure(reservationService.holdSeats(request));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void holdSeatsIllegalAccount() {
+        reservationService.holdSeats(holdRequest.toBuilder().account(null).build());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void holdSeatsNullRequest() {
+        reservationService.holdSeats(null);
+    }
+
+    @Test
+    public void cancelReservation() {
+//        reservationService.cancelReservation(getReservation(0, 0).getId());
+//        reservationService.holdSeats();
+//        reservationService.reserveSeats(reservation, );
+//        reservationService.cancelReservation(reservation.getId());
+//        reservationService.findReservation(reservation.getId());
+    }
+
+
+    @Test
+    public void isExpired() {
+        Instant expired = Instant.now().minusSeconds((60 * HOLD_EXPIRATION_IN_MINUTES) + 1);
+        Reservation reservation = Reservation.builder().status(HELD).timestamp(expired.toEpochMilli()).build();
+        assertTrue(reservationService.isExpired(reservation));
+        assertFalse(reservationService.isExpired(Reservation.builder().status(HELD).build()));
+    }
+
+//    @Test
+//    public void addToMementoReservation() {
+//        reservationService.addToMemento(memento, getReservation(new Seat(1, 1), new Seat(2, 2)));
+//        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
+//        assertEquals(RESERVED, memento.getSeatStatus(new Seat(2, 2)));
+//    }
+//
+//    // todo - do we rollback reservations if later requests fail?
+//    @Test(expected = IndexOutOfBoundsException.class)
+//    public void addToMementoReservationSecondOutOfBounds() {
+//        reservationService.addToMemento(memento, getReservation(new Seat(9, 9), new Seat(10, 10)));
+//    }
+//
+//    @Test
+//    public void createMementoFromReservations() {
+//        reservationService.doReserveSeats(getReservation(1, 0));
+//        reservationService.doReserveSeats(getReservation(1, 1));
+//        reservationService.doReserveSeats(getReservation(1, 2));
+//
+//        // should have first three seats reserved
+//        StringListBookingMemento venueState = reservationService.createMementoFromReservations(event);
+//        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 0)));
+//        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 1)));
+//        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 2)));
+//        assertEquals(AFTER_RESERVATIONS_VENUE, venueState.toString());
+//    }
+
+    @Test
+    public void addToMementoNotHeld() {
+        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
+    }
+
+    @Test
+    public void addToMementoHeld() {
+        memento.setSeat(new Seat(1, 1), HELD);
+        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void addToMementoAlreadyReservedSeat() {
+        memento.setSeat(new Seat(1, 1), RESERVED);
+        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void addToMementoStage() {
+        reservationService.addToMemento(memento, new Seat(0, 0), RESERVED);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void addToMementoObstacle() {
+        memento.setSeat(new Seat(1, 1), OBSTACLE);
+        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void addToMementoOutOfBounds() {
+        reservationService.addToMemento(memento, new Seat(1, 10), HELD);
     }
 
 }

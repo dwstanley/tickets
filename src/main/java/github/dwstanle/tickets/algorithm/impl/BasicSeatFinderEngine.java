@@ -2,12 +2,13 @@ package github.dwstanle.tickets.algorithm.impl;
 
 import github.dwstanle.tickets.algorithm.*;
 import github.dwstanle.tickets.model.Account;
-import github.dwstanle.tickets.model.SeatAssignmentRequest;
-import github.dwstanle.tickets.model.SeatAssignmentResult;
+import github.dwstanle.tickets.model.ReservationRequest;
+import github.dwstanle.tickets.model.ReservationResult;
 import github.dwstanle.tickets.model.SeatMap;
 
 import java.util.Objects;
 
+import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 
 public class BasicSeatFinderEngine<T extends BookingMemento> implements SeatFinderEngine<T> {
@@ -23,21 +24,21 @@ public class BasicSeatFinderEngine<T extends BookingMemento> implements SeatFind
     }
 
     @Override
-    public SeatAssignmentResult findBestAvailable(SeatAssignmentRequest request) {
+    public ReservationResult findBestAvailable(ReservationRequest request) {
         T currentSateOfVenue = factory.of(request.getEvent().getCurrentSeatMap());
         T bestResult = evaluator.findBest(generator.generateAllAvailable(request, currentSateOfVenue));
-        return toSeatAssignmentResult(bestResult, request.getAccount());
+        return toReservationResult(bestResult, request.getAccount());
     }
 
     @Override
     public T createMemento(SeatMap layout) {
-        return null;
+        return factory.of(layout);
     }
 
-    private SeatAssignmentResult toSeatAssignmentResult(T bestResult, Account account) {
+    private ReservationResult toReservationResult(T bestResult, Account account) {
         return (null == bestResult) ?
-                new SeatAssignmentResult(empty(), account, false) :
-                new SeatAssignmentResult(bestResult.getNewSeats(), account, true);
+                new ReservationResult(empty(), emptySet(), account, false) :
+                new ReservationResult(empty(), bestResult.getNewSeats().get(), account, true); // todo review use of empty reservation
     }
 
 }

@@ -31,12 +31,18 @@ public class BasicSeatFinderEngineTest {
         }
 
         @Override
-        public void setSeat(Seat seat, String status) {
+        public void setSeat(Seat seat, SeatStatus status) {
+
         }
 
         @Override
         public Optional<Set<Seat>> getNewSeats() {
             return Optional.empty();
+        }
+
+        @Override
+        public SeatStatus getSeatStatus(Seat seat) {
+            return null;
         }
 
     }
@@ -67,7 +73,7 @@ public class BasicSeatFinderEngineTest {
     @Test
     public void findBestAvailable() {
 
-        SeatAssignmentRequest request = SeatAssignmentRequest.builder()
+        ReservationRequest request = ReservationRequest.builder()
                 .event(event)
                 .account(account)
                 .numberOfSeats(4).build();

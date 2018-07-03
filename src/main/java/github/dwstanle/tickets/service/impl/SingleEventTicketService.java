@@ -1,6 +1,11 @@
 package github.dwstanle.tickets.service.impl;
 
+import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.model.Event;
+import github.dwstanle.tickets.search.impl.BasicSeatMapEvaluator;
+import github.dwstanle.tickets.search.impl.BasicSeatMapFactory;
+import github.dwstanle.tickets.search.impl.BasicSeatMapGenerator;
+import github.dwstanle.tickets.search.impl.BasicTicketSearchEngine;
 import github.dwstanle.tickets.service.TicketService;
 
 import java.util.Collection;
@@ -9,11 +14,16 @@ import java.util.stream.Stream;
 
 import static java.lang.Math.toIntExact;
 
-public class SingleEventTicketService implements TicketService {
+public class SingleEventTicketService extends BasicReservationService<StringListSeatMap> implements TicketService {
 
     private final Event event;
 
     public SingleEventTicketService(Event event) {
+        super(new BasicTicketSearchEngine<>(
+                        new BasicSeatMapGenerator(),
+                        new BasicSeatMapEvaluator(),
+                        new BasicSeatMapFactory()));
+
         this.event = Objects.requireNonNull(event);
     }
 
@@ -33,7 +43,7 @@ public class SingleEventTicketService implements TicketService {
     }
 
     private Stream<String> getSeats(Event event) {
-        return event.getCurrentSeatMap().getRows().stream().flatMap(Collection::stream);
+        return event.getVenue().getLayout().getSeats().stream().flatMap(Collection::stream);
     }
 
 }

@@ -18,7 +18,7 @@ public class EventTest {
                 .account(new Account("test@email.com"))
                 .seats(singleton(seat))
                 .build();
-        event = new Event(new Venue(SeatMap.SIMPLE));
+        event = new Event(new Venue(VenueSeatMap.SIMPLE));
     }
 
     @Test

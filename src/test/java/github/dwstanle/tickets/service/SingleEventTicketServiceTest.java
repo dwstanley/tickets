@@ -2,7 +2,7 @@ package github.dwstanle.tickets.service;
 
 import github.dwstanle.tickets.model.Event;
 import github.dwstanle.tickets.model.Venue;
-import github.dwstanle.tickets.model.SeatMap;
+import github.dwstanle.tickets.model.VenueSeatMap;
 import github.dwstanle.tickets.service.impl.SingleEventTicketService;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class SingleEventTicketServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        event = new Event(new Venue(SeatMap.SIMPLE));
+        event = new Event(new Venue(VenueSeatMap.SIMPLE));
         service = new SingleEventTicketService(event);
     }
 

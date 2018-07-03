@@ -1,22 +1,23 @@
 package github.dwstanle.tickets.service.impl;
 
-import github.dwstanle.tickets.algorithm.SeatAssignmentEvaluator;
-import github.dwstanle.tickets.algorithm.SeatAssignmentGenerator;
-import github.dwstanle.tickets.algorithm.impl.BasicSeatFinderEngine;
-import github.dwstanle.tickets.algorithm.impl.StringListBookingMemento;
-import github.dwstanle.tickets.algorithm.impl.StringListBookingMementoFactory;
+import github.dwstanle.tickets.search.SeatMapEvaluator;
+import github.dwstanle.tickets.search.SeatMapGenerator;
+import github.dwstanle.tickets.search.impl.BasicSeatMapFactory;
+import github.dwstanle.tickets.search.impl.BasicTicketSearchEngine;
+import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
+import github.dwstanle.tickets.service.ReservationRequest;
+import github.dwstanle.tickets.service.ReservationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
-import java.util.Collections;
 
-import static github.dwstanle.tickets.model.SeatStatus.*;
+import static github.dwstanle.tickets.SeatStatus.*;
 import static github.dwstanle.tickets.service.impl.BasicReservationService.HOLD_EXPIRATION_IN_MINUTES;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.*;
@@ -41,27 +42,27 @@ public class BasicReservationServiceTest {
     private Account account;
     private ReservationRequest holdRequest;
 
-    private BasicReservationService<StringListBookingMemento> reservationService;
+    private BasicReservationService<StringListSeatMap> reservationService;
 
-    private StringListBookingMementoFactory factory;
-    private BasicSeatFinderEngine<StringListBookingMemento> engine;
-    private StringListBookingMemento memento;
-
-    @Mock
-    private SeatAssignmentGenerator<StringListBookingMemento> generator;
+    private BasicSeatMapFactory factory;
+    private BasicTicketSearchEngine<StringListSeatMap> engine;
+    private StringListSeatMap memento;
 
     @Mock
-    private SeatAssignmentEvaluator<StringListBookingMemento> evaluator;
+    private SeatMapGenerator<StringListSeatMap> generator;
+
+    @Mock
+    private SeatMapEvaluator<StringListSeatMap> evaluator;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         this.account = new Account("test@email.com");
-        this.event = new Event(new Venue(SeatMap.SIMPLE));
-        this.factory = new StringListBookingMementoFactory();
-        this.engine = new BasicSeatFinderEngine<>(generator, evaluator, factory);
+        this.event = new Event(new Venue(VenueSeatMap.SIMPLE));
+        this.factory = new BasicSeatMapFactory();
+        this.engine = new BasicTicketSearchEngine<>(generator, evaluator, factory);
         this.reservationService = new BasicReservationService<>(engine);
-        this.memento = engine.createMemento(SeatMap.SIMPLE);
+        this.memento = engine.copySeatMap(VenueSeatMap.SIMPLE.getSeats());
         this.holdRequest = ReservationRequest.builder()
                 .account(account)
                 .event(event)
@@ -302,7 +303,7 @@ public class BasicReservationServiceTest {
 //        reservationService.doReserveSeats(getReservation(1, 2));
 //
 //        // should have first three seats reserved
-//        StringListBookingMemento venueState = reservationService.createMementoFromReservations(event);
+//        StringListSeatMap venueState = reservationService.createMementoFromReservations(event);
 //        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 0)));
 //        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 1)));
 //        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 2)));

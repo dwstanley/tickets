@@ -1,10 +1,10 @@
 package github.dwstanle.tickets.model;
 
+import github.dwstanle.tickets.SeatStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,28 +13,17 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 public class Reservation {
 
-//    @Id
-//    @GeneratedValue
-//    private final Integer id;
-    @Builder.Default private Integer id = UUID.randomUUID().hashCode();
+    @Builder.Default private final Integer id = UUID.randomUUID().hashCode();
 
-    @Builder.Default private long timestamp = System.currentTimeMillis();
+    @Builder.Default private final long timestamp = System.currentTimeMillis();
 
-//    @JsonIgnore
-//    @ManyToOne
     private final Account account;
 
-//    @JsonIgnore
-//    @ManyToOne
     private final Event event;
-//
-//    private SeatAssignment seatAssignment;
 
-//    private final Set<SeatAssignment> seatAssignments;
     private final Set<Seat> seats;
 
     private final SeatStatus status;
-
 
 
 }

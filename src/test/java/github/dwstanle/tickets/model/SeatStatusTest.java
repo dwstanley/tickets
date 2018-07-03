@@ -1,8 +1,9 @@
 package github.dwstanle.tickets.model;
 
+import github.dwstanle.tickets.SeatStatus;
 import org.junit.Test;
 
-import static github.dwstanle.tickets.model.SeatStatus.*;
+import static github.dwstanle.tickets.SeatStatus.*;
 import static org.junit.Assert.*;
 
 public class SeatStatusTest {

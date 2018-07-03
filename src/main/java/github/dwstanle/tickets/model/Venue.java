@@ -20,6 +20,6 @@ public class Venue {
     private Long id;
 
     @NonNull
-    private SeatMap layout;
+    private VenueSeatMap layout;
 
 }

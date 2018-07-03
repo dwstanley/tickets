@@ -1,8 +1,5 @@
 package github.dwstanle.tickets.service;
 
-import github.dwstanle.tickets.model.ReservationRequest;
-import github.dwstanle.tickets.model.ReservationResult;
-
 public interface ReservationService {
 
     ReservationResult findAndHoldBestAvailable(ReservationRequest request);

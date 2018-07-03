@@ -1,28 +1,31 @@
 package github.dwstanle.tickets.service.impl;
 
-import github.dwstanle.tickets.algorithm.BookingMemento;
-import github.dwstanle.tickets.algorithm.SeatFinderEngine;
+import github.dwstanle.tickets.SeatStatus;
+import github.dwstanle.tickets.SeatMap;
+import github.dwstanle.tickets.search.TicketSearchEngine;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
-import github.dwstanle.tickets.repository.impl.ReservationRepositoryImpl;
+import github.dwstanle.tickets.repository.HashMapReservationRepository;
+import github.dwstanle.tickets.service.ReservationRequest;
+import github.dwstanle.tickets.service.ReservationResult;
 import github.dwstanle.tickets.service.ReservationService;
 
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static github.dwstanle.tickets.model.SeatStatus.*;
+import static github.dwstanle.tickets.SeatStatus.*;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.partitioningBy;
 
-public class BasicReservationService<T extends BookingMemento> implements ReservationService {
+public class BasicReservationService<T extends SeatMap> implements ReservationService {
 
     // todo - all public methods should be put on single thread executor to avoid collisions with reservation timeout operations
-    //        or all reservation and algorithm testing needs to be thread safe :(
+    //        or all reservation and search testing needs to be thread safe :(
     //        scheduledExecutor.submit()
 
     // todo - make this configurable
@@ -30,14 +33,14 @@ public class BasicReservationService<T extends BookingMemento> implements Reserv
 
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-    private final ReservationRepositoryImpl reservationRepository;
+    private final HashMapReservationRepository reservationRepository;
 
-    private final SeatFinderEngine<T> engine;
+    private final TicketSearchEngine<T> engine;
 
-    public BasicReservationService(SeatFinderEngine<T> engine) {
+    public BasicReservationService(TicketSearchEngine<T> engine) {
         this.engine = Objects.requireNonNull(engine);
         // eventually this should be injected or autowired
-        this.reservationRepository = new ReservationRepositoryImpl();
+        this.reservationRepository = new HashMapReservationRepository();
     }
 
     @Override
@@ -154,8 +157,8 @@ public class BasicReservationService<T extends BookingMemento> implements Reserv
 
     private boolean areSeatsInRange(Event event, Collection<Seat> seats) {
 
-        int rowSize = event.getVenue().getLayout().getRows().size();
-        int colSize = event.getVenue().getLayout().getRows().get(0).size();
+        int rowSize = event.getVenue().getLayout().getSeats().size();
+        int colSize = event.getVenue().getLayout().getSeats().get(0).size();
 
         boolean inRange = true;
         for (Seat seat : seats) {
@@ -175,7 +178,7 @@ public class BasicReservationService<T extends BookingMemento> implements Reserv
      */
     // todo note: this method will fail if ANY reservations are invalid, is there a better way to handle them?
     protected T createMementoFromReservations(Event event) {
-        T memento = engine.createMemento(event.getVenue().getLayout());
+        T seatMap = engine.copySeatMap(event.getVenue().getLayout().getSeats());
 
         // split expired and non-expired reservations for this event, expired reservations map to true
         Map<Boolean, List<Reservation>> reservationExpiredMap = reservationRepository
@@ -183,9 +186,9 @@ public class BasicReservationService<T extends BookingMemento> implements Reserv
                 .collect(partitioningBy(this::isExpired));
 
         reservationExpiredMap.get(true).forEach(reservation -> cancelReservation(reservation.getId()));
-        reservationExpiredMap.get(false).forEach(reservation -> addToMemento(memento, reservation));
+        reservationExpiredMap.get(false).forEach(reservation -> addToMemento(seatMap, reservation));
 
-        return memento;
+        return seatMap;
     }
 
     protected void addToMemento(T memento, Reservation reservation) {

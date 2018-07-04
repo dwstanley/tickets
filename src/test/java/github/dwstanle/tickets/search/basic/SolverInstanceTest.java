@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 @Category(Slow.class)
 public class SolverInstanceTest {
 
-    private boolean printDebug = true;
+    private boolean printDebug = false;
 
     @Before
     public void setUp() throws Exception {

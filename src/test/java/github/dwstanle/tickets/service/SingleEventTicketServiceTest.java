@@ -23,7 +23,7 @@ public class SingleEventTicketServiceTest {
 
     @Test
     public void numSeatsAvailable() {
-        assertEquals(297, service.numSeatsAvailable());
+        assertEquals(48, service.numSeatsAvailable());
     }
 
     @Test

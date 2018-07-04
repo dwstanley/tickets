@@ -22,10 +22,4 @@ public class EventTest {
         event = new Event(new Venue(SIMPLE_LAYOUT_STR));
     }
 
-    @Test
-    public void getCurrentSeatMap() {
-//        VenueMemento seatMap = event.getCurrentSeatMap();
-        // todo
-        throw new UnsupportedOperationException();
-    }
 }

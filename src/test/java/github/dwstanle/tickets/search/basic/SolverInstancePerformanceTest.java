@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.Slow;
 import org.junit.Before;
@@ -25,17 +25,17 @@ public class SolverInstancePerformanceTest {
     @Test
     public void solveLargeVenue() {
 //         todo output memory usage during solve()
-        for (int i = 100; i <= 1000; i = i + 100) {
-            timeSolve(10, i);
-        }
+//        for (int i = 100; i <= 1000; i = i + 100) {
+//            timeSolve(10, i);
+//        }
     }
 
     @Test
     public void solveLargeRequest() {
 //         todo output memory usage during solve()
-        for (int i = 1; i <= 50; i++) {
-            timeSolve(i, 300);
-        }
+//        for (int i = 1; i <= 50; i++) {
+//            timeSolve(i, 300);
+//        }
     }
 
     private Duration timeSolve(int numSeats, int venueSize) {

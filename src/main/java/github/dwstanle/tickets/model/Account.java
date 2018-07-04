@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@Entity
 @Getter
 @Setter
-@Entity
 public class Account {
 
     @Id
@@ -31,6 +31,10 @@ public class Account {
 
     public Account(String email) {
         this.email = Objects.requireNonNull(email);
+    }
+
+    public Set<Reservation> getReservations() {
+        return null;
     }
 
 }

@@ -1,15 +1,18 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.SeatMap;
-import github.dwstanle.tickets.search.*;
-import github.dwstanle.tickets.model.Account;
+import github.dwstanle.tickets.model.Seat;
+import github.dwstanle.tickets.search.SeatMapEvaluator;
+import github.dwstanle.tickets.search.SeatMapFactory;
+import github.dwstanle.tickets.search.SeatMapGenerator;
+import github.dwstanle.tickets.search.TicketSearchEngine;
 import github.dwstanle.tickets.service.ReservationRequest;
-import github.dwstanle.tickets.service.ReservationResult;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
 
 public class BasicTicketSearchEngine<T extends SeatMap> implements TicketSearchEngine<T> {
@@ -25,21 +28,20 @@ public class BasicTicketSearchEngine<T extends SeatMap> implements TicketSearchE
     }
 
     @Override
-    public ReservationResult findBestAvailable(ReservationRequest request) {
+    public Optional<Set<Seat>> findBestAvailable(ReservationRequest request) {
         T currentSateOfVenue = factory.of(request.getEvent().getVenue().getLayout().getSeats());
         T bestResult = evaluator.findBest(generator.generateAllAvailable(request, currentSateOfVenue));
-        return toReservationResult(bestResult, request.getAccount());
+        return toReservationResult(bestResult);
     }
 
-//    @Override
+    @Override
     public T copySeatMap(List<List<String>> seatMap) {
         return factory.of(seatMap);
     }
 
-    private ReservationResult toReservationResult(T bestResult, Account account) {
-        return (null == bestResult) ?
-                new ReservationResult(empty(), emptySet(), account, false) :
-                new ReservationResult(empty(), bestResult.getNewSeats().get(), account, true); // todo review use of empty reservation
+    // todo - revisit this implementation
+    private Optional<Set<Seat>> toReservationResult(T bestResult) {
+        return (null == bestResult) ? empty() : bestResult.getNewSeats();
     }
 
 }

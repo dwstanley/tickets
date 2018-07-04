@@ -2,6 +2,9 @@ package github.dwstanle.tickets.model;
 
 import lombok.Data;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 @Data
 public class Seat {
     private final String section;

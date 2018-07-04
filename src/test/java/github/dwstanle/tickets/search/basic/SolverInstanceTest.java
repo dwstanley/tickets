@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.util.SeatMapUtil;
 import github.dwstanle.tickets.Slow;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 @Category(Slow.class)
 public class SolverInstanceTest {
 
-    private boolean printDebug = true;
+    private boolean printDebug = false;
 
     @Before
     public void setUp() throws Exception {

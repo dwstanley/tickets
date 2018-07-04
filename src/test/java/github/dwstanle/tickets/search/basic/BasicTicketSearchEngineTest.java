@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.SeatStatus;
 import github.dwstanle.tickets.SeatMap;
@@ -53,12 +53,6 @@ public class BasicTicketSearchEngineTest {
     @Mock
     private SeatMapFactory<SeatMapStub> factory;
 
-    @Mock
-    private Event event;
-
-    @Mock
-    private Account account;
-
     private BasicTicketSearchEngine<SeatMapStub> engine;
 
     @Before
@@ -71,8 +65,8 @@ public class BasicTicketSearchEngineTest {
     public void findBestAvailable() {
 
         ReservationRequest request = ReservationRequest.builder()
-                .event(event)
-                .account(account)
+                .event(new Event(new Venue("S S S \n S S S")))
+                .account(new Account("foo@email.com"))
                 .numberOfSeats(4).build();
 
         SeatMapStub originalBookingMemento = new SeatMapStub();

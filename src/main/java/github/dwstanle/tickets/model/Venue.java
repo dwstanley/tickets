@@ -9,10 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+@Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Entity
 public class Venue {
 
     @Id
@@ -20,6 +20,14 @@ public class Venue {
     private Long id;
 
     @NonNull
-    private VenueSeatMap layout;
+    private String layout;
+
+    //JPA construction only
+    private Venue() {
+    }
+
+    public VenueSeatMap getLayout() {
+        return VenueSeatMap.fromString(layout);
+    }
 
 }

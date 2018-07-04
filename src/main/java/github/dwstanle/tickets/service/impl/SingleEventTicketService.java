@@ -2,10 +2,10 @@ package github.dwstanle.tickets.service.impl;
 
 import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.model.Event;
-import github.dwstanle.tickets.search.impl.BasicSeatMapEvaluator;
-import github.dwstanle.tickets.search.impl.BasicSeatMapFactory;
-import github.dwstanle.tickets.search.impl.BasicSeatMapGenerator;
-import github.dwstanle.tickets.search.impl.BasicTicketSearchEngine;
+import github.dwstanle.tickets.search.basic.BasicSeatMapEvaluator;
+import github.dwstanle.tickets.search.basic.BasicSeatMapFactory;
+import github.dwstanle.tickets.search.basic.BasicSeatMapGenerator;
+import github.dwstanle.tickets.search.basic.BasicTicketSearchEngine;
 import github.dwstanle.tickets.service.TicketService;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ public class SingleEventTicketService extends BasicReservationService<StringList
     private final Event event;
 
     public SingleEventTicketService(Event event) {
-        super(new BasicTicketSearchEngine<>(
+        super.setSearchEngine(new BasicTicketSearchEngine<>(
                         new BasicSeatMapGenerator(),
                         new BasicSeatMapEvaluator(),
                         new BasicSeatMapFactory()));

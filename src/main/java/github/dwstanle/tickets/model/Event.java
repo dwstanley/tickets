@@ -1,20 +1,15 @@
 package github.dwstanle.tickets.model;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Entity
 public class Event {
 
     @Id
@@ -24,8 +19,14 @@ public class Event {
     private String eventName;
 
     @NonNull
+    @ManyToOne
     private Venue venue;
 
+    @OneToMany(mappedBy = "event")
     private Set<Reservation> reservations = new HashSet<>();
+
+    //JPA construction only
+    private Event() {
+    }
 
 }

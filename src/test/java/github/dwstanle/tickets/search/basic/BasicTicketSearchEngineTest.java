@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.SeatStatus;
 import github.dwstanle.tickets.SeatMap;

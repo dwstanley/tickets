@@ -7,6 +7,7 @@ import github.dwstanle.tickets.service.impl.SingleEventTicketService;
 import org.junit.Before;
 import org.junit.Test;
 
+import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
 import static org.junit.Assert.assertEquals;
 
 public class SingleEventTicketServiceTest {
@@ -16,7 +17,7 @@ public class SingleEventTicketServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        event = new Event(new Venue(VenueSeatMap.SIMPLE));
+        event = new Event(new Venue(SIMPLE_LAYOUT_STR));
         service = new SingleEventTicketService(event);
     }
 

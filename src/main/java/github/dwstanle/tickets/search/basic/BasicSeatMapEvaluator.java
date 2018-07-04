@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.search.impl;
+package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.search.SeatMapEvaluator;
@@ -9,6 +9,7 @@ public class BasicSeatMapEvaluator implements SeatMapEvaluator<StringListSeatMap
 
     @Override
     public StringListSeatMap findBest(Collection<StringListSeatMap> assignmentOptions) {
-        return null;
+        // todo implement
+        return assignmentOptions.iterator().next();
     }
 }

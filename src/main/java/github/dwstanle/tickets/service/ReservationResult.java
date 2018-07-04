@@ -3,6 +3,7 @@ package github.dwstanle.tickets.service;
 import github.dwstanle.tickets.model.Account;
 import github.dwstanle.tickets.model.Reservation;
 import github.dwstanle.tickets.model.Seat;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Data
+@Builder
 public class ReservationResult {
 
 //    private final VenueMemento venueEndState;

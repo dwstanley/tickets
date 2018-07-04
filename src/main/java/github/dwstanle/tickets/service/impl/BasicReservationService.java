@@ -1,27 +1,28 @@
 package github.dwstanle.tickets.service.impl;
 
-import github.dwstanle.tickets.SeatStatus;
 import github.dwstanle.tickets.SeatMap;
-import github.dwstanle.tickets.search.TicketSearchEngine;
+import github.dwstanle.tickets.SeatStatus;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
-import github.dwstanle.tickets.model.*;
-import github.dwstanle.tickets.repository.HashMapReservationRepository;
+import github.dwstanle.tickets.model.Event;
+import github.dwstanle.tickets.model.Reservation;
+import github.dwstanle.tickets.model.Seat;
+import github.dwstanle.tickets.repository.ReservationRepository;
+import github.dwstanle.tickets.search.TicketSearchEngine;
 import github.dwstanle.tickets.service.ReservationRequest;
-import github.dwstanle.tickets.service.ReservationResult;
 import github.dwstanle.tickets.service.ReservationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static github.dwstanle.tickets.SeatStatus.*;
-import static java.util.Collections.emptySet;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.partitioningBy;
 
+@Service
 public class BasicReservationService<T extends SeatMap> implements ReservationService {
 
     // todo - all public methods should be put on single thread executor to avoid collisions with reservation timeout operations
@@ -33,30 +34,30 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
 
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-    private final HashMapReservationRepository reservationRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
-    private final TicketSearchEngine<T> engine;
+    private TicketSearchEngine<T> engine;
 
-    public BasicReservationService(TicketSearchEngine<T> engine) {
-        this.engine = Objects.requireNonNull(engine);
-        // eventually this should be injected or autowired
-        this.reservationRepository = new HashMapReservationRepository();
-    }
+//    public BasicReservationService(TicketSearchEngine<T> engine) {
+//        this.engine = Objects.requireNonNull(engine);
+//    }
 
     @Override
-    public ReservationResult findAndHoldBestAvailable(ReservationRequest request) {
-        // this implementation ignores when requested seats are already present
-        ReservationResult result = engine.findBestAvailable(request);
-        if (result.isSuccess()) {
-            holdSeats(request.toBuilder().requestedSeats(result.getSeats()).build());
+    public Optional<Reservation> findAndHoldBestAvailable(ReservationRequest request) {
+        // this implementation ignores when requested seats are already present in ReservationRequest
+        Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request);
+        Optional<Reservation> reservationHeld = Optional.empty();
+        if (bestSeatsAvailable.isPresent()) {
+            reservationHeld = holdSeats(request.toBuilder().requestedSeats(bestSeatsAvailable.get()).build());
         }
-        return result;
+        return reservationHeld;
     }
 
     @Override
-    public String reserveSeats(int reservationId, String accountId) {
+    public String reserveSeats(long reservationId, String accountId) {
 
-        Reservation holdReservation = reservationRepository.findById(reservationId);
+        Reservation holdReservation = reservationRepository.findById(reservationId).orElse(null);
 
         if (null == holdReservation) {
             throw new ReservationNotFoundException(reservationId);
@@ -86,33 +87,27 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
     }
 
     @Override
-    public ReservationResult holdSeats(ReservationRequest request) {
+    public Optional<Reservation> holdSeats(ReservationRequest request) {
 
         Objects.requireNonNull(request);
         Objects.requireNonNull(request.getAccount());
         Objects.requireNonNull(request.getAccount().getEmail());
 
-        ReservationResult result;
+        Optional<Reservation> result = Optional.empty();
         Set<Seat> seats = request.getRequestedSeats();
 
         if (!seats.isEmpty() && areSeatsAvailable(request.getEvent(), seats)) {
 
-            Reservation reservation = Reservation.builder()
+            Reservation reservation = reservationRepository.save(Reservation.builder()
                     .seats(seats)
                     .event(request.getEvent())
                     .account(request.getAccount())
-                    .status(HELD).build();
+                    .status(HELD).build());
 
-            reservationRepository.save(reservation);
-
-            result = new ReservationResult(of(reservation), seats, request.getAccount(), true);
+            result = Optional.of(reservation);
 
             // probably overkill, reservations are cancelled automatically when identified in createMementoFromReservations
             scheduledExecutor.schedule(() -> cancelReservation(reservation.getId()), HOLD_EXPIRATION_IN_MINUTES, MINUTES);
-
-        } else {
-
-            result = new ReservationResult(empty(), emptySet(), request.getAccount(), false);
 
         }
 
@@ -120,13 +115,13 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
     }
 
     @Override
-    public void cancelReservation(int reservationId) {
+    public void cancelReservation(long reservationId) {
         reservationRepository.deleteById(reservationId);
     }
 
-    public Reservation findById(Integer reservationId) {
+    @Override
+    public Optional<Reservation> findById(long reservationId) {
         return reservationRepository.findById(reservationId);
-
     }
 
     protected boolean isExpired(Reservation reservation) {
@@ -149,8 +144,10 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
         boolean available = false;
         if (areSeatsInRange(event, seats)) {
             T venueState = createMementoFromReservations(event);
-            long numSeatsAvail = seats.stream().filter(seat -> AVAILABLE == venueState.getSeatStatus(seat)).count();
-            available = (numSeatsAvail == seats.size());
+            long numRequestedSeatsAvail = seats.stream()
+                    .filter(seat -> AVAILABLE == venueState.getSeatStatus(seat))
+                    .count();
+            available = (numRequestedSeatsAvail == seats.size());
         }
         return available;
     }
@@ -206,4 +203,7 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
         }
     }
 
+    public void setSearchEngine(TicketSearchEngine<T> engine) {
+        this.engine = engine;
+    }
 }

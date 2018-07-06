@@ -4,7 +4,6 @@ import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
 import github.dwstanle.tickets.repository.ReservationRepository;
-import github.dwstanle.tickets.service.impl.BasicReservationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +21,7 @@ import java.util.Optional;
 
 import static github.dwstanle.tickets.SeatStatus.HELD;
 import static github.dwstanle.tickets.SeatStatus.RESERVED;
-import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
+import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;

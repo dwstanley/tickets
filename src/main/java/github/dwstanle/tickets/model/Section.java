@@ -32,7 +32,7 @@ public class Section {
 
     // always returns a copy so requesting objects can modify as necessary
     public SeatMap getCopyOfLayout() {
-        return VenueSeatMap.fromString(layout);
+        return SeatMap.fromString(layout);
     }
 
 }

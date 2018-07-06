@@ -1,14 +1,12 @@
-package github.dwstanle.tickets.search.basic;
+package github.dwstanle.tickets.search;
 
 import github.dwstanle.tickets.SeatMap;
 import github.dwstanle.tickets.model.Seat;
-import github.dwstanle.tickets.search.TicketSearchEngine;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.Set;
 
-//@Component("ticketSearchEngine")
 @Component
 public class SimpleTicketSearchEngine implements TicketSearchEngine {
 

@@ -7,7 +7,7 @@
 //import github.dwstanle.tickets.search.basic.SeatMapEvaluator;
 //import github.dwstanle.tickets.search.basic.SeatMapGenerator;
 //import github.dwstanle.tickets.search.basic.BasicSeatMapFactory;
-//import github.dwstanle.tickets.search.basic.SimpleTicketSearchEngine;
+//import github.dwstanle.tickets.search.SimpleTicketSearchEngine;
 //import github.dwstanle.tickets.service.ReservationRequest;
 //import github.dwstanle.tickets.service.ReservationResult;
 //import org.junit.Before;
@@ -22,7 +22,7 @@
 //
 //import static github.dwstanle.tickets.SeatStatus.*;
 //import static github.dwstanle.tickets.service.basic.BasicReservationService.HOLD_EXPIRATION_IN_MINUTES;
-//import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
+//import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 //import static java.util.Collections.singleton;
 //import static org.junit.Assert.*;
 //import static org.mockito.ArgumentMatchers.any;

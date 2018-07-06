@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
+import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

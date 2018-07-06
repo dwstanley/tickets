@@ -7,7 +7,7 @@
 //import org.junit.Before;
 //import org.junit.Test;
 //
-//import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
+//import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 //import static org.junit.Assert.assertEquals;
 //
 //public class SingleEventTicketServiceTest {

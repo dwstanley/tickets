@@ -1,7 +1,7 @@
-package github.dwstanle.tickets.search.basic;
+package github.dwstanle.tickets.search;
 
 import github.dwstanle.tickets.StringListSeatMap;
-import github.dwstanle.tickets.util.SeatMapUtil;
+import github.dwstanle.tickets.util.SeatMapStrings;
 import github.dwstanle.tickets.Slow;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,18 +61,18 @@ public class LeftFillGeneratorTest {
     private String solutionsAsString(StringListSeatMap seatMap, Set<List<Point>> resultingSeatRequest) {
         StringBuilder sb = new StringBuilder();
         resultingSeatRequest.forEach(points -> {
-            List<List<String>> seatCopy = SeatMapUtil.copy(seatMap.getSeats());
+            List<List<String>> seatCopy = SeatMapStrings.copy(seatMap.getSeats());
             for (Point point : points) {
                 seatCopy.get(point.y).set(point.x, "*");
             }
-            sb.append(SeatMapUtil.toString(seatCopy)).append("\n\n");
+            sb.append(SeatMapStrings.toString(seatCopy)).append("\n\n");
         });
         return sb.toString().trim();
     }
 
     private StringListSeatMap loadSeatMap(String fileName) {
         try {
-            return new StringListSeatMap(SeatMapUtil.fromPath(path(fileName)));
+            return new StringListSeatMap(SeatMapStrings.fromPath(path(fileName)));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,7 @@
 package github.dwstanle.tickets;
 
 import github.dwstanle.tickets.model.Seat;
-import github.dwstanle.tickets.util.SeatMapUtil;
+import github.dwstanle.tickets.util.SeatMapStrings;
 
 import java.util.*;
 
@@ -41,11 +41,6 @@ public class StringListSeatMap implements SeatMap {
     }
 
     @Override
-    public Optional<Set<Seat>> getNewSeats() {
-        return Optional.empty();
-    }
-
-    @Override
     public SeatStatus getSeatStatus(Seat seat) {
         String statusCode = getSeat(seat.getRow(), seat.getCol());
         return SeatStatus.ofCode(statusCode);
@@ -69,9 +64,8 @@ public class StringListSeatMap implements SeatMap {
                 .count());
     }
 
-    @Override
     public StringListSeatMap copy() {
-        return new StringListSeatMap(SeatMapUtil.copy(seats));
+        return new StringListSeatMap(SeatMapStrings.copy(seats));
     }
 
 //    public Optional<Seat> getSeat(int row, int col) {

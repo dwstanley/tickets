@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.service.impl;
+package github.dwstanle.tickets.service;
 
 import github.dwstanle.tickets.SeatMap;
 import github.dwstanle.tickets.exception.IllegalRequestException;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import static github.dwstanle.tickets.SeatStatus.HELD;
 import static github.dwstanle.tickets.SeatStatus.RESERVED;
-import static github.dwstanle.tickets.service.impl.SeatMaps.*;
+import static github.dwstanle.tickets.service.util.SeatMaps.*;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.partitioningBy;
 

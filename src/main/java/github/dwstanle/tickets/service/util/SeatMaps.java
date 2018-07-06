@@ -1,4 +1,4 @@
-package github.dwstanle.tickets.service.impl;
+package github.dwstanle.tickets.service.util;
 
 import github.dwstanle.tickets.SeatMap;
 import github.dwstanle.tickets.SeatStatus;

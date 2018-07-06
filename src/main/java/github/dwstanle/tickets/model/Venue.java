@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,6 +24,4 @@ public class Venue {
     @OneToMany(mappedBy = "venue")
     private Set<Section> sections;
 
-//    @OneToMany(mappedBy = "venue")
-//    private Set<Event> events = new HashSet<>();
 }

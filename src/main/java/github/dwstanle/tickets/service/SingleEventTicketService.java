@@ -2,10 +2,10 @@
 //
 //import github.dwstanle.tickets.StringListSeatMap;
 //import github.dwstanle.tickets.model.Event;
-//import github.dwstanle.tickets.search.basic.RuleEvaluator;
+//import github.dwstanle.tickets.search.RuleEvaluator;
 //import github.dwstanle.tickets.search.basic.BasicSeatMapFactory;
 //import github.dwstanle.tickets.search.basic.BasicSeatMapGenerator;
-//import github.dwstanle.tickets.search.basic.SimpleTicketSearchEngine;
+//import github.dwstanle.tickets.search.SimpleTicketSearchEngine;
 //import github.dwstanle.tickets.service.TicketService;
 //
 //import java.util.Collection;

@@ -14,13 +14,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @RequiredArgsConstructor
-//@NoArgsConstructor
 public class Event {
 
     @Id
     @GeneratedValue
-//    @Builder.Default
-//    private Long id = UUID.randomUUID().getLeastSignificantBits();
     private Long id;
 
     private String eventName;

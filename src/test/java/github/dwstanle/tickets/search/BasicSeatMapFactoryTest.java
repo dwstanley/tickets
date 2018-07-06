@@ -7,7 +7,7 @@
 //
 //import static github.dwstanle.tickets.SeatStatus.HELD;
 //import static github.dwstanle.tickets.SeatStatus.RESERVED;
-//import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
+//import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 //import static org.junit.Assert.assertEquals;
 //
 //public class BasicSeatMapFactoryTest {

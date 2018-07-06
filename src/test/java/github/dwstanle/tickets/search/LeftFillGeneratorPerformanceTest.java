@@ -1,7 +1,8 @@
-package github.dwstanle.tickets.search.basic;
+package github.dwstanle.tickets.search;
 
 import github.dwstanle.tickets.Slow;
 import github.dwstanle.tickets.StringListSeatMap;
+import github.dwstanle.tickets.search.LeftFillGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

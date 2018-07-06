@@ -8,7 +8,7 @@ public interface ReservationService {
 
     Optional<Reservation> findAndHoldBestAvailable(ReservationRequest request);
 
-    String reserveSeats(long reservationId, String accountId);
+    Optional<Reservation> reserveSeats(long reservationId, String accountId);
 
     Optional<Reservation> holdSeats(ReservationRequest request);
 

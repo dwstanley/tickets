@@ -46,16 +46,18 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
     @Override
     public Optional<Reservation> findAndHoldBestAvailable(ReservationRequest request) {
         // this implementation ignores when requested seats are already present in ReservationRequest
-        Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request);
         Optional<Reservation> reservationHeld = Optional.empty();
-        if (bestSeatsAvailable.isPresent()) {
-            reservationHeld = holdSeats(request.toBuilder().requestedSeats(bestSeatsAvailable.get()).build());
+        if (request.getNumberOfSeats() > 0) {
+            Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request);
+            if (bestSeatsAvailable.isPresent()) {
+                reservationHeld = holdSeats(request.toBuilder().requestedSeats(bestSeatsAvailable.get()).build());
+            }
         }
         return reservationHeld;
     }
 
     @Override
-    public String reserveSeats(long reservationId, String accountId) {
+    public Optional<Reservation> reserveSeats(long reservationId, String accountId) {
 
         Reservation holdReservation = reservationRepository.findById(reservationId).orElse(null);
 
@@ -72,18 +74,16 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
             // consider checking if seats are still available and reserving for them anyway
         }
 
-        Reservation reserve = holdReservation.toBuilder().status(RESERVED).build();
-
-        reservationRepository.save(reserve);
+        Reservation reserve = reservationRepository.save(holdReservation.toBuilder().status(RESERVED).build());
 
         try {
-            createMementoFromReservations(holdReservation.getEvent());
+            createSeatMapFromReservations(holdReservation.getEvent());
         } catch (Exception e) {
-            // rollback reservation?
+            // todo rollback reservation?
             throw e;
         }
 
-        return "SUCCESS";
+        return Optional.ofNullable(reserve);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
 
             result = Optional.of(reservation);
 
-            // probably overkill, reservations are cancelled automatically when identified in createMementoFromReservations
+            // probably overkill, reservations are cancelled automatically when identified in createSeatMapFromReservations
             scheduledExecutor.schedule(() -> cancelReservation(reservation.getId()), HOLD_EXPIRATION_IN_MINUTES, MINUTES);
 
         }
@@ -143,7 +143,7 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
     protected boolean areSeatsAvailable(Event event, Collection<Seat> seats) {
         boolean available = false;
         if (areSeatsInRange(event, seats)) {
-            T venueState = createMementoFromReservations(event);
+            T venueState = createSeatMapFromReservations(event);
             long numRequestedSeatsAvail = seats.stream()
                     .filter(seat -> AVAILABLE == venueState.getSeatStatus(seat))
                     .count();
@@ -174,7 +174,7 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
      * This could be optimized by caching or saving the venue state if performance becomes an issue.
      */
     // todo note: this method will fail if ANY reservations are invalid, is there a better way to handle them?
-    protected T createMementoFromReservations(Event event) {
+    protected T createSeatMapFromReservations(Event event) {
         T seatMap = engine.copySeatMap(event.getVenue().getLayout().getSeats());
 
         // split expired and non-expired reservations for this event, expired reservations map to true

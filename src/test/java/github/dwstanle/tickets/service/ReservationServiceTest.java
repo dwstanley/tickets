@@ -1,6 +1,8 @@
 package github.dwstanle.tickets.service;
 
 import github.dwstanle.tickets.StringListSeatMap;
+import github.dwstanle.tickets.exception.IllegalRequestException;
+import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
 import github.dwstanle.tickets.repository.ReservationRepository;
 import github.dwstanle.tickets.search.TicketSearchEngine;
@@ -17,8 +19,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
 
+import static github.dwstanle.tickets.SeatStatus.HELD;
+import static github.dwstanle.tickets.SeatStatus.RESERVED;
 import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -74,7 +79,7 @@ public class ReservationServiceTest {
                 });
 
         when(reservationRepository.findById(argument.capture()))
-                .thenAnswer(invocationOnMock -> Optional.of(reservations.get(argument.getValue())));
+                .thenAnswer(invocationOnMock -> Optional.ofNullable(reservations.get(argument.getValue())));
     }
 
     @Test
@@ -89,6 +94,7 @@ public class ReservationServiceTest {
         assertEquals(2, result.getSeats().size());
         assertTrue(result.getSeats().contains(new Seat(1, 0)));
         assertTrue(result.getSeats().contains(new Seat(1, 1)));
+        assertEquals(HELD, result.getStatus());
         assertEquals(result, reservationService.findById(result.getId()).get());
     }
 
@@ -96,20 +102,67 @@ public class ReservationServiceTest {
     public void whenAvailable_thenHoldRequestedSeats() {
 
         ReservationRequest request = requestTemplate.toBuilder()
-                .requestedSeat(new Seat(1, 0))
-                .requestedSeat(new Seat(1, 1))
+                .requestedSeat(new Seat(2, 2))
+                .requestedSeat(new Seat(2, 3))
                 .build();
 
         Reservation result = reservationService.holdSeats(request).get();
         assertEquals("test@email.com", result.getAccount().getEmail());
-
-//        assertEquals(account, reservation.getAccount());
-//        assertEquals(event, reservation.getEvent());
-//        assertEquals(HELD, reservation.getStatus());
-//        assertEquals(2, reservation.getSeats().size());
-//
+        assertEquals(2, result.getSeats().size());
+        assertTrue(result.getSeats().contains(new Seat(2, 2)));
+        assertTrue(result.getSeats().contains(new Seat(2, 3)));
+        assertEquals(HELD, result.getStatus());
         assertEquals(result, reservationService.findById(result.getId()).get());
 
+    }
+
+    @Test
+    public void whenRequestingTooFew_thenNoReservation() {
+
+        ReservationRequest request = requestTemplate.toBuilder()
+                .numberOfSeats(-1)
+                .build();
+
+        assertFalse(reservationService.findAndHoldBestAvailable(request).isPresent());
+
+        request = requestTemplate.toBuilder()
+                .numberOfSeats(0)
+                .build();
+
+        assertFalse(reservationService.findAndHoldBestAvailable(request).isPresent());
+
+    }
+
+    @Test
+        public void whenReservationHeld_thenReserve() {
+        ReservationRequest request = requestTemplate.toBuilder().numberOfSeats(2).build();
+        Reservation held = reservationService.findAndHoldBestAvailable(request).get();
+        Reservation reserved = reservationService.reserveSeats(held.getId(), request.getAccount().getEmail()).get();
+        assertEquals("test@email.com", reserved.getAccount().getEmail());
+        assertEquals(2, reserved.getSeats().size());
+        assertTrue(reserved.getSeats().contains(new Seat(1, 0)));
+        assertTrue(reserved.getSeats().contains(new Seat(1, 1)));
+        assertEquals(RESERVED, reserved.getStatus());
+        assertEquals(reserved, reservationService.findById(reserved.getId()).get());
+    }
+
+    @Test(expected = ReservationNotFoundException.class)
+    public void whenReservationNotHeld_thenThrowError() {
+        reservationService.reserveSeats(0, "test@email.com");
+    }
+
+    @Test(expected = IllegalRequestException.class)
+    public void whenReservationHeldBySomeoneElse_thenThrowError() {
+        ReservationRequest request = requestTemplate.toBuilder().numberOfSeats(2).build();
+        Reservation held = reservationService.findAndHoldBestAvailable(request).get();
+        reservationService.reserveSeats(held.getId(), "wrongaccount@email.com");
+    }
+
+    @Test(expected = IllegalRequestException.class)
+    public void whenReservingWithIllegalAccountIdentifier_thenThrowError() {
+        ReservationRequest request = requestTemplate.toBuilder().numberOfSeats(2).build();
+        Reservation held = reservationService.findAndHoldBestAvailable(request).get();
+        reservationService.reserveSeats(held.getId(), null);
     }
 
 

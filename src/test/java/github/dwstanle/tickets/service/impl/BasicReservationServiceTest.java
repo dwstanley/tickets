@@ -303,13 +303,13 @@
 ////    }
 ////
 ////    @Test
-////    public void createMementoFromReservations() {
+////    public void createSeatMapFromReservations() {
 ////        reservationService.doReserveSeats(getReservation(1, 0));
 ////        reservationService.doReserveSeats(getReservation(1, 1));
 ////        reservationService.doReserveSeats(getReservation(1, 2));
 ////
 ////        // should have first three seats reserved
-////        StringListSeatMap venueState = reservationService.createMementoFromReservations(event);
+////        StringListSeatMap venueState = reservationService.createSeatMapFromReservations(event);
 ////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 0)));
 ////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 1)));
 ////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 2)));

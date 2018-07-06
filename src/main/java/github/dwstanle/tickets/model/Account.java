@@ -33,8 +33,4 @@ public class Account {
         this.email = Objects.requireNonNull(email);
     }
 
-    public Set<Reservation> getReservations() {
-        return null;
-    }
-
 }

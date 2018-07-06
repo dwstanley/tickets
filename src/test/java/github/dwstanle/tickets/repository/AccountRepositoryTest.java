@@ -28,6 +28,7 @@ public class AccountRepositoryTest {
         entityManager.persist(new Account("foo@email.com"));
         Optional<Account> account = accountRepository.findByEmail("foo@email.com");
         assertEquals("foo@email.com", account.get().getEmail());
+        assertNotNull(account.get().getId());
     }
 
 }

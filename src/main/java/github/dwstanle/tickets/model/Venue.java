@@ -1,33 +1,30 @@
 package github.dwstanle.tickets.model;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@Setter(value = AccessLevel.PACKAGE)
 @Getter
-@Setter
-@RequiredArgsConstructor
 public class Venue {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @NonNull
-    private String layout;
+    @Singular
+    @OneToMany(mappedBy = "venue")
+    private Set<Section> sections;
 
-    //JPA construction only
-    private Venue() {
-    }
-
-    public VenueSeatMap getLayout() {
-        return VenueSeatMap.fromString(layout);
-    }
-
+//    @OneToMany(mappedBy = "venue")
+//    private Set<Event> events = new HashSet<>();
 }

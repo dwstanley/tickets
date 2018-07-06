@@ -1,11 +1,9 @@
 package github.dwstanle.tickets.service;
 
-import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
 import github.dwstanle.tickets.model.*;
 import github.dwstanle.tickets.repository.ReservationRepository;
-import github.dwstanle.tickets.search.TicketSearchEngine;
 import github.dwstanle.tickets.service.impl.BasicReservationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,15 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static github.dwstanle.tickets.SeatStatus.HELD;
 import static github.dwstanle.tickets.SeatStatus.RESERVED;
 import static github.dwstanle.tickets.util.SeatMapUtil.SIMPLE_LAYOUT_STR;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -31,22 +31,24 @@ import static org.mockito.Mockito.when;
 public class ReservationServiceTest {
 
     @TestConfiguration
+    @ComponentScan("github.dwstanle.tickets.service.test")
     static class BasicReservationServiceTestContextConfiguration {
 
         @Bean
         public ReservationService reservationService() {
-            BasicReservationService<StringListSeatMap> reservationService = new BasicReservationService<>();
-            reservationService.setSearchEngine(new TicketSearchEngine<StringListSeatMap>() {
-                @Override
-                public Optional<Set<Seat>> findBestAvailable(ReservationRequest request) {
-                    return Optional.of(new HashSet<>(Arrays.asList(new Seat(1, 0), new Seat(1, 1))));
-                }
-
-                @Override
-                public StringListSeatMap copySeatMap(List<List<String>> origin) {
-                    return new StringListSeatMap(origin);
-                }
-            });
+            BasicReservationService reservationService = new BasicReservationService();
+//            reservationService.setSearchEngine(new TicketSearchEngine() {
+//                @Override
+//                public Optional<Set<Seat>> findBestAvailable(int requestedNumberOfSeats, SeatMap seatMap) {
+//                    return Optional.of(new HashSet<>(Arrays.asList(new Seat(1, 0), new Seat(1, 1))));
+//                }
+//
+//                @Override
+//                public Optional<Set<Seat>> findFirstAvailable(int requestedNumberOfSeats, SeatMap seatMap) {
+//                    return Optional.of(new HashSet<>(Arrays.asList(new Seat(1, 0), new Seat(1, 1))));
+//                }
+//
+//            });
             return reservationService;
         }
     }
@@ -67,9 +69,12 @@ public class ReservationServiceTest {
     @Before
     public void setUp() {
 
+        Section section = new Section(SIMPLE_LAYOUT_STR);
+
         requestTemplate = ReservationRequest.builder()
+                .requestedSection(section)
                 .account(new Account("test@email.com"))
-                .event(new Event(new Venue(SIMPLE_LAYOUT_STR)))
+                .event(Event.withId(Venue.builder().section(section).build()))
                 .build();
 
         when(reservationRepository.save(reservationArg.capture()))
@@ -116,25 +121,18 @@ public class ReservationServiceTest {
 
     }
 
-    @Test
-    public void whenRequestingTooFew_thenNoReservation() {
+    @Test(expected = IllegalRequestException.class)
+    public void whenRequestingNegativeNumberOfSeats_thenThrowError() {
+        reservationService.findAndHoldBestAvailable(requestTemplate.toBuilder().numberOfSeats(-1).build());
+    }
 
-        ReservationRequest request = requestTemplate.toBuilder()
-                .numberOfSeats(-1)
-                .build();
-
-        assertFalse(reservationService.findAndHoldBestAvailable(request).isPresent());
-
-        request = requestTemplate.toBuilder()
-                .numberOfSeats(0)
-                .build();
-
-        assertFalse(reservationService.findAndHoldBestAvailable(request).isPresent());
-
+    @Test(expected = IllegalRequestException.class)
+    public void whenRequestingNoSeats_thenThrowError() {
+        reservationService.findAndHoldBestAvailable(requestTemplate.toBuilder().numberOfSeats(0).build());
     }
 
     @Test
-        public void whenReservationHeld_thenReserve() {
+    public void whenReservationHeld_thenReserve() {
         ReservationRequest request = requestTemplate.toBuilder().numberOfSeats(2).build();
         Reservation held = reservationService.findAndHoldBestAvailable(request).get();
         Reservation reserved = reservationService.reserveSeats(held.getId(), request.getAccount().getEmail()).get();

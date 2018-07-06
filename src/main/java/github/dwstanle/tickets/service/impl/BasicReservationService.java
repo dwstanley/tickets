@@ -1,58 +1,97 @@
 package github.dwstanle.tickets.service.impl;
 
 import github.dwstanle.tickets.SeatMap;
-import github.dwstanle.tickets.SeatStatus;
 import github.dwstanle.tickets.exception.IllegalRequestException;
 import github.dwstanle.tickets.exception.ReservationNotFoundException;
-import github.dwstanle.tickets.model.Event;
 import github.dwstanle.tickets.model.Reservation;
 import github.dwstanle.tickets.model.Seat;
+import github.dwstanle.tickets.model.Section;
 import github.dwstanle.tickets.repository.ReservationRepository;
 import github.dwstanle.tickets.search.TicketSearchEngine;
 import github.dwstanle.tickets.service.ReservationRequest;
 import github.dwstanle.tickets.service.ReservationService;
+import lombok.Getter;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
-import static github.dwstanle.tickets.SeatStatus.*;
+import static github.dwstanle.tickets.SeatStatus.HELD;
+import static github.dwstanle.tickets.SeatStatus.RESERVED;
+import static github.dwstanle.tickets.service.impl.SeatMaps.*;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.partitioningBy;
 
 @Service
-public class BasicReservationService<T extends SeatMap> implements ReservationService {
+public class BasicReservationService implements ReservationService {
 
-    // todo - all public methods should be put on single thread executor to avoid collisions with reservation timeout operations
-    //        or all reservation and search testing needs to be thread safe :(
-    //        scheduledExecutor.submit()
+    // todo - add to readme comment about why locks and blocking methods were used instead of async and futures
 
     // todo - make this configurable
     public static final int HOLD_EXPIRATION_IN_MINUTES = 1;
 
+    @Getter
+    private static class SectionInfo {
+        @NonNull
+        private final Section section;
+        private final SeatMap seatMap;
+        private int numAvailable;
+        private double price = 0;
+
+        SectionInfo(Section section) {
+            this.section = Objects.requireNonNull(section);
+            this.seatMap = section.getCopyOfLayout();
+            this.numAvailable = seatMap.numberOfSeatsAvailable();
+        }
+
+    }
+
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ConcurrentMap<Long, Lock> eventLock = new ConcurrentHashMap<>();
 
     @Autowired
     private ReservationRepository reservationRepository;
 
-    private TicketSearchEngine<T> engine;
+    @Autowired
+    private TicketSearchEngine engine;
 
-//    public BasicReservationService(TicketSearchEngine<T> engine) {
+//    @Autowired
+//    public BasicReservationService(ReservationRepository reservationRepository, TicketSearchEngine engine) {
+//        this.reservationRepository = Objects.requireNonNull(reservationRepository);
 //        this.engine = Objects.requireNonNull(engine);
 //    }
 
     @Override
     public Optional<Reservation> findAndHoldBestAvailable(ReservationRequest request) {
-        // this implementation ignores when requested seats are already present in ReservationRequest
-        Optional<Reservation> reservationHeld = Optional.empty();
-        if (request.getNumberOfSeats() > 0) {
-            Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request);
-            if (bestSeatsAvailable.isPresent()) {
-                reservationHeld = holdSeats(request.toBuilder().requestedSeats(bestSeatsAvailable.get()).build());
-            }
+
+        if (request.getNumberOfSeats() <= 0) {
+            throw new IllegalRequestException("reservation request must contain a positive number of seats.");
         }
+
+        // this implementation ignores requested seats provided in ReservationRequest
+        Optional<Reservation> reservationHeld = Optional.empty();
+//        Lock eventLock = getLock(request.getEvent().getId());
+//        try {
+//            eventLock.lock();
+            for (SectionInfo section : findSectionsToSearch(request)) {
+                Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request.getNumberOfSeats(), section.seatMap);
+                if (bestSeatsAvailable.isPresent()) {
+                    reservationHeld = holdSeats(request.toBuilder().requestedSeats(bestSeatsAvailable.get()).build());
+                    break;
+                }
+            }
+//        } finally {
+//            eventLock.unlock();
+//        }
+
         return reservationHeld;
     }
 
@@ -76,12 +115,7 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
 
         Reservation reserve = reservationRepository.save(holdReservation.toBuilder().status(RESERVED).build());
 
-        try {
-            createSeatMapFromReservations(holdReservation.getEvent());
-        } catch (Exception e) {
-            // todo rollback reservation?
-            throw e;
-        }
+        // todo - rerun fillSeatMapFromReservations and verify state of venue is still good, if not do we roll back the reservation?
 
         return Optional.ofNullable(reserve);
     }
@@ -89,25 +123,31 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
     @Override
     public Optional<Reservation> holdSeats(ReservationRequest request) {
 
-        Objects.requireNonNull(request);
-        Objects.requireNonNull(request.getAccount());
-        Objects.requireNonNull(request.getAccount().getEmail());
-
-        Optional<Reservation> result = Optional.empty();
+        Long eventId = request.getEvent().getId();
+        Section section = request.getRequestedSection();
         Set<Seat> seats = request.getRequestedSeats();
 
-        if (!seats.isEmpty() && areSeatsAvailable(request.getEvent(), seats)) {
+        Optional<Reservation> result = Optional.empty();
 
-            Reservation reservation = reservationRepository.save(Reservation.builder()
-                    .seats(seats)
-                    .event(request.getEvent())
-                    .account(request.getAccount())
-                    .status(HELD).build());
+        if (!seats.isEmpty() && areRequestedSeatsAvailable(eventId, section, seats)) {
 
-            result = Optional.of(reservation);
+//            Lock eventLock = getLock(eventId);
+//            try {
+//                eventLock.lock();
+                Reservation reservation = reservationRepository.save(Reservation.builder()
+                        .seats(seats)
+                        .event(request.getEvent())
+                        .account(request.getAccount())
+                        .status(HELD).build());
 
-            // probably overkill, reservations are cancelled automatically when identified in createSeatMapFromReservations
-            scheduledExecutor.schedule(() -> cancelReservation(reservation.getId()), HOLD_EXPIRATION_IN_MINUTES, MINUTES);
+                result = Optional.of(reservation);
+
+                // probably overkill, reservations are cancelled automatically when identified in createSeatMapFromReservations
+                scheduledExecutor.schedule(() -> cancelReservation(reservation.getId()), HOLD_EXPIRATION_IN_MINUTES, MINUTES);
+
+//            } finally {
+//                eventLock.unlock();
+//            }
 
         }
 
@@ -124,7 +164,11 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
         return reservationRepository.findById(reservationId);
     }
 
-    protected boolean isExpired(Reservation reservation) {
+    public void setSearchEngine(TicketSearchEngine engine) {
+        this.engine = engine;
+    }
+
+    private boolean isExpired(Reservation reservation) {
         boolean isExpired = false;
         if (HELD == reservation.getStatus()) {
             long elapsedTime = System.currentTimeMillis() - reservation.getTimestamp();
@@ -133,40 +177,16 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
         return isExpired;
     }
 
-    protected void doReserveSeats(Reservation reservation) {
-        reservationRepository.save(reservation);
-    }
-
     /**
      * Returns true if the seats specified are available for the event.
      */
-    protected boolean areSeatsAvailable(Event event, Collection<Seat> seats) {
+    private boolean areRequestedSeatsAvailable(Long eventId, Section section, Collection<Seat> seats) {
         boolean available = false;
-        if (areSeatsInRange(event, seats)) {
-            T venueState = createSeatMapFromReservations(event);
-            long numRequestedSeatsAvail = seats.stream()
-                    .filter(seat -> AVAILABLE == venueState.getSeatStatus(seat))
-                    .count();
-            available = (numRequestedSeatsAvail == seats.size());
+        if (areSeatsInRange(section.getCopyOfLayout(), seats)) {
+            SeatMap seatMapAfterReservations = fillSeatMapWithReservations(eventId, section);
+            available = areSeatsAvailable(seatMapAfterReservations, seats);
         }
         return available;
-    }
-
-    private boolean areSeatsInRange(Event event, Collection<Seat> seats) {
-
-        int rowSize = event.getVenue().getLayout().getSeats().size();
-        int colSize = event.getVenue().getLayout().getSeats().get(0).size();
-
-        boolean inRange = true;
-        for (Seat seat : seats) {
-            if (seat.getRow() >= rowSize || seat.getRow() < 0
-                    || seat.getCol() >= colSize || seat.getCol() < 0) {
-                inRange = false;
-                break;
-            }
-        }
-
-        return inRange;
     }
 
     /**
@@ -174,36 +194,34 @@ public class BasicReservationService<T extends SeatMap> implements ReservationSe
      * This could be optimized by caching or saving the venue state if performance becomes an issue.
      */
     // todo note: this method will fail if ANY reservations are invalid, is there a better way to handle them?
-    protected T createSeatMapFromReservations(Event event) {
-        T seatMap = engine.copySeatMap(event.getVenue().getLayout().getSeats());
+
+    private SeatMap fillSeatMapWithReservations(Long eventId, Section section) {
+        SeatMap seatMap = section.getCopyOfLayout();
 
         // split expired and non-expired reservations for this event, expired reservations map to true
         Map<Boolean, List<Reservation>> reservationExpiredMap = reservationRepository
-                .findByEventId(event.getId())
+                .findByEventId(eventId)
                 .collect(partitioningBy(this::isExpired));
 
         reservationExpiredMap.get(true).forEach(reservation -> cancelReservation(reservation.getId()));
-        reservationExpiredMap.get(false).forEach(reservation -> addToMemento(seatMap, reservation));
+        reservationExpiredMap.get(false).forEach(reservation -> addToSeatMap(seatMap, reservation));
 
         return seatMap;
     }
 
-    protected void addToMemento(T memento, Reservation reservation) {
-        reservation.getSeats().forEach(seat -> addToMemento(memento, seat, reservation.getStatus()));
+    private List<SectionInfo> findSectionsToSearch(ReservationRequest request) {
+        return request.getEvent().getVenue().getSections().stream()
+                .map(SectionInfo::new)
+                .filter(sectionInfo -> sectionInfo.getNumAvailable() >= request.getNumberOfSeats())
+                .filter(sectionInfo -> sectionInfo.getPrice() <= request.getMaxPrice())
+                // sort by number of available per section so stadium fills evenly (optional)
+                .sorted(Comparator.comparing(SectionInfo::getNumAvailable))
+                .collect(Collectors.toList());
     }
 
-    protected void addToMemento(T memento, Seat seat, SeatStatus seatStatus) {
-        switch (memento.getSeatStatus(seat)) {
-            case RESERVED:
-            case STAGE:
-            case OBSTACLE:
-                throw new UnsupportedOperationException("requested seat cannot be reserved or held.");
-            default:
-                memento.setSeat(seat, seatStatus);
-        }
+    private Lock getLock(Long key) {
+        eventLock.putIfAbsent(key, new ReentrantLock());
+        return eventLock.get(key);
     }
 
-    public void setSearchEngine(TicketSearchEngine<T> engine) {
-        this.engine = engine;
-    }
 }

@@ -19,7 +19,7 @@ public class EventTest {
                 .account(new Account("test@email.com"))
                 .seats(singleton(seat))
                 .build();
-        event = new Event(new Venue(SIMPLE_LAYOUT_STR));
+        event = new Event(Venue.builder().section(new Section(SIMPLE_LAYOUT_STR)).build());
     }
 
 }

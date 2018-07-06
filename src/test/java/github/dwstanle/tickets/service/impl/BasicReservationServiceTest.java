@@ -4,10 +4,10 @@
 //import github.dwstanle.tickets.exception.IllegalRequestException;
 //import github.dwstanle.tickets.exception.ReservationNotFoundException;
 //import github.dwstanle.tickets.model.*;
-//import github.dwstanle.tickets.search.SeatMapEvaluator;
-//import github.dwstanle.tickets.search.SeatMapGenerator;
+//import github.dwstanle.tickets.search.basic.SeatMapEvaluator;
+//import github.dwstanle.tickets.search.basic.SeatMapGenerator;
 //import github.dwstanle.tickets.search.basic.BasicSeatMapFactory;
-//import github.dwstanle.tickets.search.basic.BasicTicketSearchEngine;
+//import github.dwstanle.tickets.search.basic.SimpleTicketSearchEngine;
 //import github.dwstanle.tickets.service.ReservationRequest;
 //import github.dwstanle.tickets.service.ReservationResult;
 //import org.junit.Before;
@@ -50,7 +50,7 @@
 //    private BasicReservationService<StringListSeatMap> reservationService;
 //
 //    private BasicSeatMapFactory factory;
-//    private BasicTicketSearchEngine<StringListSeatMap> engine;
+//    private SimpleTicketSearchEngine<StringListSeatMap> engine;
 //    private StringListSeatMap memento;
 //
 //    @Mock
@@ -65,7 +65,7 @@
 //        this.account = new Account("test@email.com");
 //        this.event = new Event(new Venue(SIMPLE_LAYOUT_STR));
 //        this.factory = new BasicSeatMapFactory();
-//        this.engine = new BasicTicketSearchEngine<>(generator, evaluator, factory);
+//        this.engine = new SimpleTicketSearchEngine<>(generator, evaluator, factory);
 //        this.reservationService = new BasicReservationService<>();
 //        this.reservationService.setSearchEngine(engine);
 //        this.memento = engine.copySeatMap(VenueSeatMap.SIMPLE.getSeats());
@@ -291,7 +291,7 @@
 //
 ////    @Test
 ////    public void addToMementoReservation() {
-////        reservationService.addToMemento(memento, getReservation(new Seat(1, 1), new Seat(2, 2)));
+////        reservationService.addToSeatMap(memento, getReservation(new Seat(1, 1), new Seat(2, 2)));
 ////        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
 ////        assertEquals(RESERVED, memento.getSeatStatus(new Seat(2, 2)));
 ////    }
@@ -299,7 +299,7 @@
 ////    // todo - do we rollback reservations if later requests fail?
 ////    @Test(expected = IndexOutOfBoundsException.class)
 ////    public void addToMementoReservationSecondOutOfBounds() {
-////        reservationService.addToMemento(memento, getReservation(new Seat(9, 9), new Seat(10, 10)));
+////        reservationService.addToSeatMap(memento, getReservation(new Seat(9, 9), new Seat(10, 10)));
 ////    }
 ////
 ////    @Test
@@ -318,37 +318,37 @@
 //
 //    @Test
 //    public void addToMementoNotHeld() {
-//        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
 //        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
 //    }
 //
 //    @Test
 //    public void addToMementoHeld() {
 //        memento.setSeat(new Seat(1, 1), HELD);
-//        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
 //        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
 //    }
 //
 //    @Test(expected = UnsupportedOperationException.class)
 //    public void addToMementoAlreadyReservedSeat() {
 //        memento.setSeat(new Seat(1, 1), RESERVED);
-//        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
 //    }
 //
 //    @Test(expected = UnsupportedOperationException.class)
 //    public void addToMementoStage() {
-//        reservationService.addToMemento(memento, new Seat(0, 0), RESERVED);
+//        reservationService.addToSeatMap(memento, new Seat(0, 0), RESERVED);
 //    }
 //
 //    @Test(expected = UnsupportedOperationException.class)
 //    public void addToMementoObstacle() {
 //        memento.setSeat(new Seat(1, 1), OBSTACLE);
-//        reservationService.addToMemento(memento, new Seat(1, 1), RESERVED);
+//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
 //    }
 //
 //    @Test(expected = IndexOutOfBoundsException.class)
 //    public void addToMementoOutOfBounds() {
-//        reservationService.addToMemento(memento, new Seat(1, 10), HELD);
+//        reservationService.addToSeatMap(memento, new Seat(1, 10), HELD);
 //    }
 //
 //}

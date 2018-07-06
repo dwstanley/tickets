@@ -1,6 +1,7 @@
 package github.dwstanle.tickets.search.basic;
 
 import github.dwstanle.tickets.Slow;
+import github.dwstanle.tickets.StringListSeatMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -14,7 +15,7 @@ import java.util.List;
 import static github.dwstanle.tickets.SeatStatus.AVAILABLE;
 
 @Category(Slow.class)
-public class SolverInstancePerformanceTest {
+public class LeftFillGeneratorPerformanceTest {
 
     private boolean printDebug = true;
 
@@ -39,9 +40,9 @@ public class SolverInstancePerformanceTest {
     }
 
     private Duration timeSolve(int numSeats, int venueSize) {
-        List<List<String>> seatMap = randomSeatMap(venueSize, venueSize);
+        StringListSeatMap seatMap = randomSeatMap(venueSize, venueSize);
         Instant start = Instant.now();
-        new SolverInstance(seatMap, numSeats).solve();
+        new LeftFillGenerator(numSeats, seatMap).findAllSolutions();
         Duration duration = Duration.between(start, Instant.now());
         if (printDebug) {
             System.err.println(String.format("Finding %d seats for a square venue of %d seats took %d ms.",
@@ -51,12 +52,12 @@ public class SolverInstancePerformanceTest {
     }
 
     // todo make seat values random
-    private List<List<String>> randomSeatMap(int rows, int cols) {
+    private StringListSeatMap randomSeatMap(int rows, int cols) {
         List<List<String>> seats = new ArrayList<>(cols);
         for (int i = 0; i < rows; i++) {
             seats.add(new ArrayList<>(Collections.nCopies(cols, AVAILABLE.getCode())));
         }
-        return seats;
+        return new StringListSeatMap(seats);
     }
 
 

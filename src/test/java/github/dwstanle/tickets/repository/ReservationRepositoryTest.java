@@ -23,12 +23,15 @@ public class ReservationRepositoryTest {
 
     private Account account;
     private Venue venue;
+    private Section section;
     private Event event;
 
     @Before
     public void setUp() {
+
+        this.section = entityManager.persist(new Section("S S S \n S S S"));
         this.account = entityManager.persist(new Account("foo@email.com"));
-        this.venue = entityManager.persist(new Venue("S S S \n S S S"));
+        this.venue = entityManager.persist(Venue.builder().section(section).build());
         this.event = entityManager.persist(new Event(venue));
         entityManager.persist(Reservation.builder()
                 .account(account)

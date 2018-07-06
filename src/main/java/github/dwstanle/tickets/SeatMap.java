@@ -11,6 +11,15 @@ public interface SeatMap {
 
     Optional<Set<Seat>> getNewSeats();
 
+
     SeatStatus getSeatStatus(Seat seat);
 
+    int getNumberOfRows();
+
+    int getNumberOfCols();
+
+    int numberOfSeatsAvailable();
+
+
+    <T extends SeatMap> T copy();
 }

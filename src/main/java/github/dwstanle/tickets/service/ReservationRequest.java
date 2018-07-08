@@ -17,7 +17,8 @@ public class ReservationRequest {
 
 //    @NonNull
     private final Event event;
-    private final Account account;
+//    private final Account account;
+    private String account; // email
     private final int numberOfSeats;
     private final double maxPrice;
 //    private final Optional<Set<Seat>> requestedSeats;

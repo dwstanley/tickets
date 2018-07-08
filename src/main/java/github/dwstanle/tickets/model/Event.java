@@ -20,7 +20,8 @@ public class Event {
     @GeneratedValue
     private Long id;
 
-    private String eventName;
+    @NonNull
+    private String name;
 
     @NonNull
     @ManyToOne
@@ -34,8 +35,9 @@ public class Event {
     }
 
     public static Event withId(Venue venue) {
-        Event event = new Event(venue);
-        event.setId(UUID.randomUUID().getLeastSignificantBits());
+        Long generatedId = UUID.randomUUID().getLeastSignificantBits();
+        Event event = new Event("Event: " + generatedId, venue);
+        event.setId(generatedId);
         return event;
     }
 

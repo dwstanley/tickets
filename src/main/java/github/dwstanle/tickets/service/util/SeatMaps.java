@@ -12,7 +12,9 @@ import static github.dwstanle.tickets.SeatStatus.AVAILABLE;
 public class SeatMaps {
 
     public static <M extends SeatMap> void addToSeatMap(M seatMap, Reservation reservation) {
-        reservation.getSeats().forEach(seat -> addToSeatMap(seatMap, seat, reservation.getStatus()));
+        if (null != reservation.getSeats()) {
+            reservation.getSeats().forEach(seat -> addToSeatMap(seatMap, seat, reservation.getStatus()));
+        }
     }
 
     public static <M extends SeatMap> void addToSeatMap(M seatMap, Seat seat, SeatStatus seatStatus) {

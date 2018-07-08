@@ -1,5 +1,6 @@
 package github.dwstanle.tickets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import github.dwstanle.tickets.SeatMap;
 import lombok.Getter;
 import lombok.NonNull;
@@ -23,6 +24,9 @@ public class Section {
     @NonNull
     private String layout;
 
+    private String name;
+
+    @JsonIgnore
     @ManyToOne
     private Venue venue;
 
@@ -31,6 +35,7 @@ public class Section {
     }
 
     // always returns a copy so requesting objects can modify as necessary
+    @JsonIgnore
     public SeatMap getCopyOfLayout() {
         return SeatMap.fromString(layout);
     }

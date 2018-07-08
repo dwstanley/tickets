@@ -2,7 +2,7 @@ package github.dwstanle.tickets.search;
 
 import github.dwstanle.tickets.StringListSeatMap;
 import github.dwstanle.tickets.util.SeatMapStrings;
-import github.dwstanle.tickets.Slow;
+import github.dwstanle.tickets.test.Slow;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

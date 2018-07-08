@@ -28,7 +28,7 @@ public class EventRepositoryTest {
     @Test
     public void save() {
         Venue venue = entityManager.persist(Venue.builder().section(new Section(SIMPLE_LAYOUT_STR)).build());
-        Event event = eventRepository.save(new Event(venue));
+        Event event = eventRepository.save(new Event("Event Test", venue));
         assertNotNull(event);
     }
 
@@ -36,7 +36,7 @@ public class EventRepositoryTest {
     public void findById() {
         Section section = entityManager.persist(new Section(SIMPLE_LAYOUT_STR));
         Venue venue = entityManager.persist(Venue.builder().section(section).build());
-        Event event = eventRepository.save(new Event(venue));
+        Event event = eventRepository.save(new Event("Event Test", venue));
         assertEquals(event, eventRepository.findById(event.getId()).get());
     }
 

@@ -216,100 +216,19 @@ public class ReservationServiceTest {
         assertFalse(reservation.isPresent());
     }
 
-    //    @Test(expected = NullPointerException.class)
-//    public void holdSeatsIllegalAccount() {
-//        reservationService.holdSeats(holdRequest.toBuilder().account(null).build());
-//    }
-
-    //    @Test(expected = NullPointerException.class)
-//    public void holdSeatsNullRequest() {
-//        reservationService.holdSeats(null);
-//    }
-
     @Test
     public void whenReservationHeld_thenCancel() {
-
+        // not implemented yet
     }
 
     @Test
     public void whenReservationReserved_thenCancel() {
-
+        // not implemented yet
     }
 
     @Test
     public void whenReservationTimeout_thenCancelAutomatically() {
-
+        // not implemented yet
     }
-
-
-    //    @Test
-//    public void isExpired() {
-//        Instant expired = Instant.now().minusSeconds((60 * HOLD_EXPIRATION_IN_MINUTES) + 1);
-//        Reservation reservation = Reservation.builder().status(HELD).timestamp(expired.toEpochMilli()).build();
-//        assertTrue(reservationService.isExpired(reservation));
-//        assertFalse(reservationService.isExpired(Reservation.builder().status(HELD).build()));
-//    }
-//
-////    @Test
-////    public void addToMementoReservation() {
-////        reservationService.addToSeatMap(memento, getReservation(new Seat(1, 1), new Seat(2, 2)));
-////        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
-////        assertEquals(RESERVED, memento.getSeatStatus(new Seat(2, 2)));
-////    }
-////
-////    // todo - do we rollback reservations if later requests fail?
-////    @Test(expected = IndexOutOfBoundsException.class)
-////    public void addToMementoReservationSecondOutOfBounds() {
-////        reservationService.addToSeatMap(memento, getReservation(new Seat(9, 9), new Seat(10, 10)));
-////    }
-////
-////    @Test
-////    public void createSeatMapFromReservations() {
-////        reservationService.doReserveSeats(getReservation(1, 0));
-////        reservationService.doReserveSeats(getReservation(1, 1));
-////        reservationService.doReserveSeats(getReservation(1, 2));
-////
-////        // should have first three seats reserved
-////        StringListSeatMap venueState = reservationService.createSeatMapFromReservations(event);
-////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 0)));
-////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 1)));
-////        assertEquals(RESERVED, venueState.getSeatStatus(new Seat(1, 2)));
-////        assertEquals(AFTER_RESERVATIONS_VENUE, venueState.toString());
-////    }
-//
-//    @Test
-//    public void addToMementoNotHeld() {
-//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
-//        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
-//    }
-//
-//    @Test
-//    public void addToMementoHeld() {
-//        memento.setSeat(new Seat(1, 1), HELD);
-//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
-//        assertEquals(RESERVED, memento.getSeatStatus(new Seat(1, 1)));
-//    }
-//
-//    @Test(expected = UnsupportedOperationException.class)
-//    public void addToMementoAlreadyReservedSeat() {
-//        memento.setSeat(new Seat(1, 1), RESERVED);
-//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
-//    }
-//
-//    @Test(expected = UnsupportedOperationException.class)
-//    public void addToMementoStage() {
-//        reservationService.addToSeatMap(memento, new Seat(0, 0), RESERVED);
-//    }
-//
-//    @Test(expected = UnsupportedOperationException.class)
-//    public void addToMementoObstacle() {
-//        memento.setSeat(new Seat(1, 1), OBSTACLE);
-//        reservationService.addToSeatMap(memento, new Seat(1, 1), RESERVED);
-//    }
-//
-//    @Test(expected = IndexOutOfBoundsException.class)
-//    public void addToMementoOutOfBounds() {
-//        reservationService.addToSeatMap(memento, new Seat(1, 10), HELD);
-//    }
 
 }

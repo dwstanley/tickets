@@ -37,6 +37,7 @@ public class LeftFillGeneratorTest {
         doSolve("scenario.3.input", "scenario.3.7.expected", 7, printDebug);
 //        doSolve("scenario.4.input", "scenario.3.7.expected", 7, true);
 //        doSolve("scenario.5.input", "scenario.3.7.expected", 7, true);
+        doSolve("scenario.6.input", "scenario.6.6.expected", 6, printDebug);
     }
 
     private void doSolve(String inputFile, String expectedFile, int requestedNumberOfSeats, boolean printDebug) {

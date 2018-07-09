@@ -31,4 +31,10 @@ public class RuleEvaluator {
     private List<Point> getFirst(Set<List<Point>> allSolutions) {
         return allSolutions.iterator().hasNext() ? allSolutions.iterator().next() : null;
     }
+
+    private Set<Seat> toSeats(List<Point> point2DList) {
+        return point2DList.stream()
+                .map(point -> new Seat(point.y, point.x))
+                .collect(Collectors.toSet());
+    }
 }

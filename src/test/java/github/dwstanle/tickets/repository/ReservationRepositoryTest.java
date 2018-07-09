@@ -106,13 +106,13 @@ public class ReservationRepositoryTest {
         assertFalse(reservationRepository.findById(reservation.getId()).isPresent());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void whenDeleteUnknown_thenReservationIsRemoved() {
+    @Test(expected = Exception.class)
+    public void whenDeleteUnknown_thenExceptionIsThrown() {
         reservationRepository.deleteById(0L);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void whenDeleteWithNull_thenIllegalArgumentException() {
+    @Test(expected = Exception.class)
+    public void whenDeleteWithNull_thenExceptionIsThrown() {
         reservationRepository.deleteById(null);
     }
 }

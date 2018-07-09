@@ -5,6 +5,7 @@ import github.dwstanle.tickets.util.SeatMapStrings;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
 
@@ -38,4 +39,5 @@ public interface SeatMap {
 
     int numberOfSeatsAvailable();
 
+    SeatMap copyWithNewSeats(Set<Seat> seatsToAdd, SeatStatus status);
 }

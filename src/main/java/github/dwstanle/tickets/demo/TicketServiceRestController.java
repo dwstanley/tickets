@@ -2,6 +2,7 @@
 package github.dwstanle.tickets.demo;
 
 import github.dwstanle.tickets.SeatMap;
+import github.dwstanle.tickets.exception.CouldNotFindSeatsException;
 import github.dwstanle.tickets.model.Account;
 import github.dwstanle.tickets.model.Event;
 import github.dwstanle.tickets.model.Reservation;
@@ -78,7 +79,6 @@ class TicketServiceRestController {
 
     @RequestMapping(value = "/demo/numSeatsAvailable", method = RequestMethod.GET)
     @ResponseBody
-    @Transactional
     public int numSeatsAvailable() {
         Event event = eventRepository.findByName("demoEvent");
         return reservationService.findNumberOfSeatsAvailable(event);
@@ -87,13 +87,17 @@ class TicketServiceRestController {
 
     @RequestMapping(value = "/demo/findAndHoldSeats", method = RequestMethod.GET)
     @ResponseBody
-    @Transactional
+//    @Transactional
     public SeatHold findAndHoldSeats(@RequestParam(name="numSeats") Integer numSeats, @RequestParam(name="customerEmail") String customerEmail) {
 
         Event event = eventRepository.findByName("demoEvent");
 
-//        Account account = accountRepository.findByEmail(customerEmail).orElse(accountRepository.save(new Account(customerEmail)));
-        Account account = accountRepository.findByEmail("demo@fakeemail.com");
+        Account account = accountRepository.findByEmail(customerEmail);
+        if (null == account) {
+            account = accountRepository.save(new Account(customerEmail));
+        }
+//                .orElse(accountRepository.save(new Account(customerEmail)));
+//        Account account = accountRepository.findByEmail("demo@fakeemail.com");
 
         ReservationRequest request = ReservationRequest.builder()
                 .event(event)
@@ -103,12 +107,16 @@ class TicketServiceRestController {
 
         Reservation reservation = reservationService.findAndHoldBestAvailable(request).orElse(null);
 
+        if (null == reservation) {
+            throw new CouldNotFindSeatsException(numSeats);
+        }
+
         return new SeatHold(reservation, Integer.valueOf(env.getProperty("reservation.timeoutInSeconds")));
     }
 
     @RequestMapping(value = "/demo/reserveSeats", method = RequestMethod.GET)
     @ResponseBody
-    @Transactional
+//    @Transactional
     public String reserveSeats(@RequestParam(name="seatHoldId") Integer seatHoldId, @RequestParam(name="customerEmail") String customerEmail) {
 //        Account account = accountRepository.findByEmail(customerEmail).orElse(accountRepository.save(new Account(customerEmail)));
         Account account = accountRepository.findByEmail("demo@fakeemail.com");

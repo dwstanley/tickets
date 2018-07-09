@@ -64,6 +64,13 @@ public class StringListSeatMap implements SeatMap {
                 .count());
     }
 
+    @Override
+    public SeatMap copyWithNewSeats(Set<Seat> seatsToAdd, SeatStatus status) {
+        SeatMap copy = new StringListSeatMap(SeatMapStrings.copy(seats));
+        seatsToAdd.forEach(seat -> copy.setSeat(seat, status));
+        return copy;
+    }
+
     public StringListSeatMap copy() {
         return new StringListSeatMap(SeatMapStrings.copy(seats));
     }

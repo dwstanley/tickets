@@ -19,13 +19,13 @@ $ mvn clean package
 
 ### Test
 
-The best way to see the tickets service in action is to run the provided JUnit tests. Some of the tests are intended to be run every time the project is build while other should only be run during integration or performance testing before a release. These tests are identified by the `@Category` tag.
+Tests are written using JUnit 4 and Mockito. There are a combination of unit and integration tests and as such, some of the tests are intended to be run every time the project is built while others should only be run during integration or performance testing before a release. These tests are identified by the `@Category` tag as Fast or Slow but have not yet been configured as separate build targets.
 
 ```sh
 $ mvn clean test
 ```
 
-Code coverage is handled by **jacoco** and will be output to `target/jacoco.exec` each time `mvn test` is run`. This file is not human readable but can be ingested by tools such as sonar. For convenience this project is configured to use **coveralls** and test results can be found below:
+Code coverage is handled by **jacoco** and will be output to `target/jacoco.exec` each time `mvn test` is run. This file is not human readable but can be ingested by tools such as sonar. For convenience this project is configured to use **coveralls** and test results can be found below:
 
 [![Coverage Status](https://coveralls.io/repos/github/dwstanley/tickets/badge.svg?branch=develop)](https://coveralls.io/github/dwstanley/tickets?branch=develop)
 
@@ -35,7 +35,7 @@ Code coverage is handled by **jacoco** and will be output to `target/jacoco.exec
 $ mvn clean spring-boot:run
 ```
 
-The following urls can be used (with limited functionality) to see the application in action.
+The following urls can be used (with limited functionality) to see the application in action. See the 'REST Service' section under considerations for further details.
 
 <http://localhost:8080/tickets/demo>
 <http://localhost:8080/tickets/demo/findAndHoldSeats?numSeats="myNumSeats"&customerEmail="myTestEmail">
@@ -57,11 +57,9 @@ The search engine layer is responsible for finding available seats within a prov
 
 **Note:** After implementation and some testing it appears that creating **all** possible solutions, while providing the best result, is often less important than quickly finding the first result that meets a set of criteria. A 'break early' condition was added to the interface to allow the evaluator to be run after each result instead of after all possible results. A super efficient algorithm that does not separate these two concerns could implement the TicketSearchEngine interface directly.
 
-#### Concurrent Requests
+#### SeatMaps and Sections
 
-#### Sections
-
-Each Venue consists of one or more Sections (which could be assigned per Event properties such as price).
+Each Venue consists of one or more Sections (which could be assigned Event specific properties such as price). Each section contains a single SeatMap (which is represented by a string consisting of characters that represent: A - available, X - obstacle, R - reserved, H - held, S - stage).
 
 The concept of sections was omitted from the search engine layer (but included in the service layer) for several reasons. First, this simplifies the responsibilities of the search engine, which already contains complex logic for searching through a multi-dimensional array. Second, it allows the time and memory intensive search algorithm to be parallelized or offloaded in a distributed manor. This also allows the business logic to handle multiple requests for the same event simultaneously by searching different sections to avoid seat assignment conflicts (note: there are arguments for and against this, my implementation does not handle this). Last, it allows some level of oversight into seat assignment by the service layer. Policies such as whether to spread seating evenly across a venue can be implemented and modified without having to re-write the search engine.
 
@@ -89,3 +87,24 @@ A full rest service implementation has not yet been completed but the structure 
 No GUI was used for development or testing so making use of the exposed endpoints will require knowledge of http GET, JSON, and likely some application such as curl or Postman to send requests.
 
 ### Next Steps
+
+Re-evaluate locking and load distribution approach. The current implementation locks search requests by event to prevent multiple users from being assigned the same seats. An alternate approach would be to lock on per section of an event which would allow for higher throughput but would potentially impact the accuracy of 'find best' algorithm and complicate multi-section searches for large requests.
+The biggest issue with the current locking approach is that it only supports a single JVM service and does not scale horizontally. A better approach would be to further exam the object model design use database locking.
+
+Add Logging. During development and testing I was able to get by with default logging provided by spring but more custom logging would likely be necessary for a production system.
+
+Known issues with TicketSearchEngine implementation. The existing implementation of the search engine interface will fail to find seats for the following scenarios:
+<pre>
+X X A A X X     Request 5 seats - Fails because first row is less than minimum per row (3).
+X A A A A X                       Should be special cased for odd shaped venues.
+R R R R R R
+</pre>
+
+<pre>
+A A A A         Request 5 seats - Fails because algorithm breaks early on second row when filling from left.
+R A A A                           Works with flipped arrangement.
+</pre>
+
+Optimize the generation and evaluation pieces of the search engine. Currently implementations rely heavily on early breaking conditions but leave room for improvement. Memory usage and number of iterations through seatmaps should be examined further. Small improvements in these areas maybe have huge impacts on overall performance due to the high volume of requests expected.
+
+Finish implementation of test categories so performance and integration tests are not run every time and can be run on large data sets.

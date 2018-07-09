@@ -1,7 +1,8 @@
-package github.dwstanle.tickets.search.basic;
+package github.dwstanle.tickets.search;
 
-import github.dwstanle.tickets.util.SeatMapUtil;
-import github.dwstanle.tickets.Slow;
+import github.dwstanle.tickets.StringListSeatMap;
+import github.dwstanle.tickets.util.SeatMapStrings;
+import github.dwstanle.tickets.test.Slow;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -17,7 +18,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 @Category(Slow.class)
-public class SolverInstanceTest {
+public class LeftFillGeneratorTest {
 
     private boolean printDebug = false;
 
@@ -27,18 +28,20 @@ public class SolverInstanceTest {
 
     @Test
     public void solve() {
-        doSolve("scenario.1.input", "scenario.1.2.expected", 2);
-        doSolve("scenario.1.input", "scenario.1.3.expected", 3);
-        doSolve("scenario.1.input", "scenario.1.4.expected", 4);
-        doSolve("scenario.2.input", "scenario.2.4.expected", 4);
-        doSolve("scenario.2.input", "scenario.2.6.expected", 6);
-        doSolve("scenario.3.input", "scenario.3.6.expected", 6);
-        doSolve("scenario.3.input", "scenario.3.7.expected", 7);
+        doSolve("scenario.1.input", "scenario.1.2.expected", 2, printDebug);
+        doSolve("scenario.1.input", "scenario.1.3.expected", 3, printDebug);
+        doSolve("scenario.1.input", "scenario.1.4.expected", 4, printDebug);
+        doSolve("scenario.2.input", "scenario.2.4.expected", 4, printDebug);
+        doSolve("scenario.2.input", "scenario.2.6.expected", 6, printDebug);
+        doSolve("scenario.3.input", "scenario.3.6.expected", 6, printDebug);
+        doSolve("scenario.3.input", "scenario.3.7.expected", 7, printDebug);
+//        doSolve("scenario.4.input", "scenario.3.7.expected", 7, true);
+//        doSolve("scenario.5.input", "scenario.3.7.expected", 7, true);
     }
 
-    private void doSolve(String inputFile, String expectedFile, int requestedNumberOfSeats) {
-        List<List<String>> seatMap = loadSeatMap(inputFile);
-        Set<List<Point>> result = new SolverInstance(seatMap, requestedNumberOfSeats).solve();
+    private void doSolve(String inputFile, String expectedFile, int requestedNumberOfSeats, boolean printDebug) {
+        StringListSeatMap seatMap = loadSeatMap(inputFile);
+        Set<List<Point>> result = new LeftFillGenerator(requestedNumberOfSeats, seatMap).findAllSolutions();
         assertEquals(loadFile(expectedFile), solutionsAsString(seatMap, result));
 
         if (printDebug) {
@@ -55,21 +58,21 @@ public class SolverInstanceTest {
 //                        .collect(Collectors.joining(" "))).forEach(System.err::println);
 //    }
 
-    private String solutionsAsString(List<List<String>> seatMap, Set<List<Point>> resultingSeatRequest) {
+    private String solutionsAsString(StringListSeatMap seatMap, Set<List<Point>> resultingSeatRequest) {
         StringBuilder sb = new StringBuilder();
         resultingSeatRequest.forEach(points -> {
-            List<List<String>> seatCopy = SeatMapUtil.copy(seatMap);
+            List<List<String>> seatCopy = SeatMapStrings.copy(seatMap.getSeats());
             for (Point point : points) {
                 seatCopy.get(point.y).set(point.x, "*");
             }
-            sb.append(SeatMapUtil.toString(seatCopy)).append("\n\n");
+            sb.append(SeatMapStrings.toString(seatCopy)).append("\n\n");
         });
         return sb.toString().trim();
     }
 
-    private List<List<String>> loadSeatMap(String fileName) {
+    private StringListSeatMap loadSeatMap(String fileName) {
         try {
-            return SeatMapUtil.fromPath(path(fileName));
+            return new StringListSeatMap(SeatMapStrings.fromPath(path(fileName)));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

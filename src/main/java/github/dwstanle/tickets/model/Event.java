@@ -1,10 +1,14 @@
 package github.dwstanle.tickets.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,7 +20,8 @@ public class Event {
     @GeneratedValue
     private Long id;
 
-    private String eventName;
+    @NonNull
+    private String name;
 
     @NonNull
     @ManyToOne
@@ -27,6 +32,13 @@ public class Event {
 
     //JPA construction only
     private Event() {
+    }
+
+    public static Event withId(Venue venue) {
+        Long generatedId = UUID.randomUUID().getLeastSignificantBits();
+        Event event = new Event("Event: " + generatedId, venue);
+        event.setId(generatedId);
+        return event;
     }
 
 }

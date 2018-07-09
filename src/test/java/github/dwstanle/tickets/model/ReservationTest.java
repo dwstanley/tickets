@@ -3,6 +3,7 @@ package github.dwstanle.tickets.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import static github.dwstanle.tickets.model.Data.generateId;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,7 +17,8 @@ public class ReservationTest {
     public void setUp() {
         seat = new Seat(0, 0);
         reservation = Reservation.builder()
-                .account(new Account("test@email.com"))
+                .id(generateId())
+                .account("test@email.com")
                 .seats(singleton(seat))
                 .build();
     }

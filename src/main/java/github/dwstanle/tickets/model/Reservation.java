@@ -1,38 +1,52 @@
 package github.dwstanle.tickets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import github.dwstanle.tickets.SeatStatus;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Singular;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static java.util.Collections.emptySet;
+
 @Entity
-@Getter
-@Setter
 @Builder(toBuilder = true)
+//@AllArgsConstructor(access = AccessLevel.PACKAGE)
+//@NoArgsConstructor(access = AccessLevel.PACKAGE)
+//@Setter(value = AccessLevel.PACKAGE)
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
 public class Reservation {
 
     @Id
-    @Builder.Default private final Long id = UUID.randomUUID().getLeastSignificantBits();
+    @GeneratedValue
+    private Long id;
 
-    @Builder.Default private final long timestamp = System.currentTimeMillis();
+    @Builder.Default private long timestamp = System.currentTimeMillis();
 
+    @JsonIgnore
+//    @ManyToOne
+//    private Account account;
+    private String account; // email
+
+    @JsonIgnore
     @ManyToOne
-    private final Account account;
+    private Event event;
 
-    @ManyToOne
-    private final Event event;
-
-    @Embedded
     @Singular
-    private final Set<Seat> seats;
+    @Embedded
+    @ElementCollection
+    private Set<Seat> seats;
 
     @Enumerated(EnumType.STRING)
-    private final SeatStatus status;
+    private SeatStatus status;
 
+//    public Set<Seat> getSeats() {
+//        return (null == seats) ? emptySet() : seats;
+//    }
 }

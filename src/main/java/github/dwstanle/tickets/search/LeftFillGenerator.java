@@ -1,16 +1,20 @@
-package github.dwstanle.tickets.search.basic;
+package github.dwstanle.tickets.search;
 
+import github.dwstanle.tickets.SeatMap;
 import github.dwstanle.tickets.SeatStatus;
+import github.dwstanle.tickets.StringListSeatMap;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static github.dwstanle.tickets.SeatStatus.isAvailable;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
-class SolverInstance {
+class LeftFillGenerator {
 
     private final Set<List<Point>> resultSet = new LinkedHashSet<>();
     private final int requestedNumberOfSeats;
@@ -18,10 +22,10 @@ class SolverInstance {
     private final int rowSize;
     private final int colSize;
 
-    public SolverInstance(List<List<String>> seatMap, int requestedNumberOfSeats) {
+    public LeftFillGenerator(int requestedNumberOfSeats, SeatMap seatMap) {
 
+        this.seats = new StringListSeatMap(seatMap).getSeats();
         this.requestedNumberOfSeats = requestedNumberOfSeats;
-        this.seats = Objects.requireNonNull(seatMap);
         this.rowSize = seats.size();
         this.colSize = seats.get(0).size();
 
@@ -31,7 +35,7 @@ class SolverInstance {
         }
     }
 
-    public Set<List<Point>> solve() {
+    public Set<List<Point>> findAllSolutions() {
         if (requestedNumberOfSeats > 0 && isNumSeatsAvailable(requestedNumberOfSeats)) {
             for (int row = 0; row < rowSize; row++) {
                 for (int col = 0; col < colSize; col++) {
@@ -120,4 +124,8 @@ class SolverInstance {
         return (requestedNumberOfSeats < 3) ? requestedNumberOfSeats : 3;
     }
 
+    public Set<List<Point>> findAllSolutions(Predicate<List<Point2D>> breakEarlyCondition) {
+        // todo
+        return null;
+    }
 }

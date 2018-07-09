@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public class SeatMapUtil {
+public class SeatMapStrings {
 
     public static String SIMPLE_LAYOUT_STR =
             "S S S S S S S S\n" +

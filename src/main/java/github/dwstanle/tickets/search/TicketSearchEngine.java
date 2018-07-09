@@ -8,6 +8,5 @@ import java.util.Set;
 
 public interface TicketSearchEngine {
     Optional<Set<Seat>> findBestAvailable(int requestedNumberOfSeats, SeatMap seatMap);
-
     Optional<Set<Seat>> findFirstAvailable(int requestedNumberOfSeats, SeatMap seatMap);
 }

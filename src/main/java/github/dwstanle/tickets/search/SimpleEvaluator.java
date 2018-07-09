@@ -26,7 +26,6 @@ public class SimpleEvaluator {
     public SimpleEvaluator(int requestedNumberOfSeats, SeatMap origin) {
         this.origin = Objects.requireNonNull(origin);
         this.env = loadProperties("application.properties");
-
     }
 
     public Optional<Set<Seat>> findBest(Set<List<Point>> allSolutions) {

@@ -3,7 +3,6 @@ package github.dwstanle.tickets.service;
 import github.dwstanle.tickets.SeatMap;
 import github.dwstanle.tickets.model.Event;
 import github.dwstanle.tickets.model.Reservation;
-import github.dwstanle.tickets.model.Section;
 
 import java.util.Optional;
 

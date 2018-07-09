@@ -61,13 +61,13 @@ The search engine layer is responsible for finding available seats within a prov
 
 #### SeatMaps and Sections
 
-Each Venue consists of one or more Sections (which could be assigned Event specific properties such as price). Each section contains a single SeatMap (which is represented by a string consisting of characters that represent: 
+Each Venue consists of one or more Sections, which could be assigned Event specific properties such as price). Each section contains a single SeatMap (which is represented by a string consisting of characters that represent: 
 <pre>
-A - available, 
-X - obstacle, 
-R - reserved, 
-H - held, 
-S - stage).
+A - available
+X - obstacle
+R - reserved
+H - held 
+S - stage
 </pre>
 
 The concept of sections was omitted from the search engine layer (but included in the service layer) for several reasons. First, this simplifies the responsibilities of the search engine, which already contains complex logic for searching through a multi-dimensional array. Second, it allows the time and memory intensive search algorithm to be parallelized or offloaded in a distributed manor. This also allows the business logic to handle multiple requests for the same event simultaneously by searching different sections to avoid seat assignment conflicts (note: there are arguments for and against this, my implementation does not handle this). Last, it allows some level of oversight into seat assignment by the service layer. Policies such as whether to spread seating evenly across a venue can be implemented and modified without having to re-write the search engine.

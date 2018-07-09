@@ -4,7 +4,7 @@ import github.dwstanle.tickets.SeatStatus;
 import org.junit.Test;
 
 import static github.dwstanle.tickets.SeatStatus.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SeatStatusTest {
 

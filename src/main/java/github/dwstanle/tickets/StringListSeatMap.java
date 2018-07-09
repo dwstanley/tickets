@@ -75,10 +75,6 @@ public class StringListSeatMap implements SeatMap {
         return new StringListSeatMap(SeatMapStrings.copy(seats));
     }
 
-//    public Optional<Seat> getSeat(int row, int col) {
-//        return Optional.ofNullable(seats.get(row).get(col));
-//    }
-
     public String getSeat(int row, int col) {
         return seats.get(row).get(col);
     }

@@ -13,7 +13,6 @@ import github.dwstanle.tickets.service.ReservationRequest;
 import github.dwstanle.tickets.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/tickets")
-class TicketServiceRestController {
+class TicketServiceRestController implements TicketService {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -87,7 +86,6 @@ class TicketServiceRestController {
 
     @RequestMapping(value = "/demo/findAndHoldSeats", method = RequestMethod.GET)
     @ResponseBody
-//    @Transactional
     public SeatHold findAndHoldSeats(@RequestParam(name="numSeats") Integer numSeats, @RequestParam(name="customerEmail") String customerEmail) {
 
         Event event = eventRepository.findByName("demoEvent");
@@ -96,8 +94,6 @@ class TicketServiceRestController {
         if (null == account) {
             account = accountRepository.save(new Account(customerEmail));
         }
-//                .orElse(accountRepository.save(new Account(customerEmail)));
-//        Account account = accountRepository.findByEmail("demo@fakeemail.com");
 
         ReservationRequest request = ReservationRequest.builder()
                 .event(event)
@@ -116,10 +112,11 @@ class TicketServiceRestController {
 
     @RequestMapping(value = "/demo/reserveSeats", method = RequestMethod.GET)
     @ResponseBody
-//    @Transactional
     public String reserveSeats(@RequestParam(name="seatHoldId") Integer seatHoldId, @RequestParam(name="customerEmail") String customerEmail) {
-//        Account account = accountRepository.findByEmail(customerEmail).orElse(accountRepository.save(new Account(customerEmail)));
-        Account account = accountRepository.findByEmail("demo@fakeemail.com");
+        Account account = accountRepository.findByEmail(customerEmail);
+        if (null == account) {
+            account = accountRepository.save(new Account(customerEmail));
+        }
         Optional<Reservation> reservation = reservationService.reserveSeats(seatHoldId, account.getEmail());
         return reservation.isPresent() ? "SUCCESS" : "FAIL";
     }

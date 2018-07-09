@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static github.dwstanle.tickets.SeatStatus.AVAILABLE;
 import static github.dwstanle.tickets.SeatStatus.HELD;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class StringListSeatMapTest {
 

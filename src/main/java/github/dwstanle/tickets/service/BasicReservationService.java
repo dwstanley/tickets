@@ -66,11 +66,6 @@ public class BasicReservationService implements ReservationService {
             eventLock.lock();
             for (SectionInfo section : findSectionsToSearch(request)) {
                 Optional<Set<Seat>> bestSeatsAvailable = engine.findBestAvailable(request.getNumberOfSeats(), section.seatMap);
-//            try {
-//                Thread.sleep(10000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
                 if (bestSeatsAvailable.isPresent()) {
                     reservationHeld = holdSeats(request.toBuilder()
                             .requestedSection(section.section)

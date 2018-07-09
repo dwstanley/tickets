@@ -7,10 +7,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -22,6 +19,7 @@ public class Section {
     private Long id;
 
     @NonNull
+    @Lob
     private String layout;
 
     private String name;

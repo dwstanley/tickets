@@ -5,10 +5,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Entity
 @Getter
@@ -23,9 +23,6 @@ public class Account {
     @NonNull
     @Column(unique=true)
     private String email;
-
-//    @OneToMany(mappedBy = "account")
-//    private Set<Reservation> reservations = new HashSet<>();
 
     //JPA construction only
     private Account() {

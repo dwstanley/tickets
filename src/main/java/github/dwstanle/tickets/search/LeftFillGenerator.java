@@ -29,7 +29,6 @@ class LeftFillGenerator {
         this.rowSize = seats.size();
         this.colSize = seats.get(0).size();
 
-//        if (rowSize * colSize > 1000000) {
         if (rowSize * colSize > 250000) {
             throw new UnsupportedOperationException("Solver does not support venues with over a 250,000 seats.");
         }
@@ -47,14 +46,10 @@ class LeftFillGenerator {
     }
 
     private Set<List<Point>> findSolutions(Point seat) {
-//        System.out.println("\nfinding solutions for: " + seat);
         Set<List<Point>> result = new HashSet<>();
         // represents the bounded area available to fill with seats starting from the provided seat
         for(Rectangle fillBounds : calcFillBounds(seat, getMinPerRowAmt())) {
             if (getMinPerRowAmt() <= fillBounds.width && requestedNumberOfSeats <= fillBounds.width * fillBounds.height) {
-//            System.out.println("filling solutions for: " + seat);
-//            System.out.println("\nfill bounds are: " + fillBounds);
-//            System.out.println(leftFill(fillBounds, getMinPerRowAmt()));
                 leftFill(fillBounds, getMinPerRowAmt()).ifPresent(result::add);
             }
         }
@@ -91,10 +86,6 @@ class LeftFillGenerator {
         return conditionsMet ? of(seatsFilled) : empty();
     }
 
-//    private Rectangle calcFillBounds(Point seat) {
-//        return new Rectangle(seat, new Dimension(colSize - seat.x, rowSize - seat.y));
-//    }
-
     private List<Rectangle> calcFillBounds(Point seat, int minPerRow) {
         List<Rectangle> boundsList = new ArrayList<>();
         int height = rowSize - seat.y;
@@ -125,7 +116,6 @@ class LeftFillGenerator {
     }
 
     public Set<List<Point>> findAllSolutions(Predicate<List<Point2D>> breakEarlyCondition) {
-        // todo
-        return null;
+        throw new UnsupportedOperationException("LeftFillGenerator does not support break early conditions");
     }
 }

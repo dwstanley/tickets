@@ -46,17 +46,9 @@ public class LeftFillGeneratorTest {
 
         if (printDebug) {
             System.err.println("\nSolution found for: " + inputFile + ":\n");
-//            print(result);
             System.err.println(solutionsAsString(seatMap, result));
         }
     }
-
-//    private void print(List<List<Point>> result) {
-//        result.stream()
-//                .map(points -> points.stream()
-//                        .map(point -> String.format("(%s, %s)", point.x, point.y))
-//                        .collect(Collectors.joining(" "))).forEach(System.err::println);
-//    }
 
     private String solutionsAsString(StringListSeatMap seatMap, Set<List<Point>> resultingSeatRequest) {
         StringBuilder sb = new StringBuilder();

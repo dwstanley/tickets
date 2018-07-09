@@ -236,7 +236,6 @@ public class ReservationServiceTest {
 
     }
 
-    // todo should be in Slow test category
     @Test
     public void whenReservationTimeout_thenCancelAutomatically() {
 

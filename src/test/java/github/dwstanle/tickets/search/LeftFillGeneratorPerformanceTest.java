@@ -3,6 +3,7 @@ package github.dwstanle.tickets.search;
 import github.dwstanle.tickets.test.Slow;
 import github.dwstanle.tickets.StringListSeatMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -23,20 +24,20 @@ public class LeftFillGeneratorPerformanceTest {
     public void setUp() {
     }
 
+    @Ignore("Ignored until JUnit categories are configured")
     @Test
     public void solveLargeVenue() {
-//         todo output memory usage during solve()
-//        for (int i = 100; i <= 1000; i = i + 100) {
-//            timeSolve(10, i);
-//        }
+        for (int i = 100; i <= 1000; i = i + 100) {
+            timeSolve(10, i);
+        }
     }
 
+    @Ignore("Ignored until JUnit categories are configured")
     @Test
     public void solveLargeRequest() {
-//         todo output memory usage during solve()
-//        for (int i = 1; i <= 50; i++) {
-//            timeSolve(i, 300);
-//        }
+        for (int i = 1; i <= 50; i++) {
+            timeSolve(i, 300);
+        }
     }
 
     private Duration timeSolve(int numSeats, int venueSize) {
@@ -51,7 +52,6 @@ public class LeftFillGeneratorPerformanceTest {
         return duration;
     }
 
-    // todo make seat values random
     private StringListSeatMap randomSeatMap(int rows, int cols) {
         List<List<String>> seats = new ArrayList<>(cols);
         for (int i = 0; i < rows; i++) {

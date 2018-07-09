@@ -19,9 +19,7 @@ public class SimpleTicketSearchEngine implements TicketSearchEngine {
 
     @Override
     public Optional<Set<Seat>> findFirstAvailable(int requestedNumberOfSeats, SeatMap seatMap) {
-        LeftFillGenerator generate = new LeftFillGenerator(requestedNumberOfSeats, seatMap);
-        RuleEvaluator evaluate = new RuleEvaluator(requestedNumberOfSeats, seatMap);
-        return evaluate.findBest(generate.findAllSolutions(seats -> evaluate.score(seats) > 0));
+        throw new UnsupportedOperationException("Placeholder. Not yet implemented.");
     }
 
 }

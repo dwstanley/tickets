@@ -122,3 +122,5 @@ R A A A                           Works with flipped arrangement.
 Optimize the generation and evaluation pieces of the search engine. Currently implementations rely heavily on early breaking conditions but leave room for improvement. Memory usage and number of iterations through seatmaps should be examined further. Small improvements in these areas maybe have huge impacts on overall performance due to the high volume of requests expected.
 
 Finish implementation of test categories so performance and integration tests are not run every time and can be run on large data sets.
+
+Documentation. JavaDoc public classes and interfaces.

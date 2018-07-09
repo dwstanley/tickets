@@ -22,8 +22,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Optional;
+
 import static github.dwstanle.tickets.util.SeatMapStrings.SIMPLE_LAYOUT_STR;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Integration test.
@@ -87,49 +92,19 @@ public class TicketsApplicationTest {
                 .build();
 
         Reservation result = reservationService.findAndHoldBestAvailable(request).get();
+        Reservation result1 = reservationService.findAndHoldBestAvailable(request).get();
 
-        result = reservationService.findAndHoldBestAvailable(request).get();
-        result = reservationService.findAndHoldBestAvailable(request).get();
-        result = reservationService.findAndHoldBestAvailable(request).get();
-
-        // verify all reservations held
-    }
-
-    @Test
-    public void whenTimeout_thenSameSeatsFound() {
-
-        ReservationRequest request = requestTemplate.toBuilder()
-                .numberOfSeats(2)
-                .build();
-
-        Reservation result = reservationService.findAndHoldBestAvailable(request).get();
-//  thread.sleep for      BasicReservationService.HOLD_EXPIRATION_IN_MINUTES
-        result = reservationService.findAndHoldBestAvailable(request).get();
-
-//        verify only one reservation held
+        result1.getSeats().forEach(seat -> {
+            assertFalse(result.getSeats().contains(seat));
+        });
 
     }
 
-    @Test
-    public void whenSuccessfulHold_thenReservation() {
-
-        ReservationRequest request = requestTemplate.toBuilder()
-                .numberOfSeats(2)
-                .build();
-
-        Reservation result = reservationService.findAndHoldBestAvailable(request).get();
-//        BasicReservationService.HOLD_EXPIRATION_IN_MINUTES
-        result = reservationService.findAndHoldBestAvailable(request).get();
-
-//        verify only one reservation held
-
-    }
 
     @Test
     public void whenRequestTooLarge_thenNoResultFound() {
         ReservationRequest request = requestTemplate.toBuilder().numberOfSeats(500).build();
         assertFalse(reservationService.findAndHoldBestAvailable(request).isPresent());
     }
-
 
 }

@@ -14,6 +14,12 @@ import static github.dwstanle.tickets.SeatStatus.isAvailable;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
+/**
+ * Responsible for calculating possible ways to fill a seat availability request.
+ *
+ * This implementation will limit the minimum number of seats allowed per row based on the request size to avoid
+ * undesirable solution where one person in the group is left in a row alone.
+ */
 class LeftFillGenerator {
 
     private final Set<List<Point>> resultSet = new LinkedHashSet<>();
@@ -22,6 +28,12 @@ class LeftFillGenerator {
     private final int rowSize;
     private final int colSize;
 
+    /**
+     * Constructs a new {@Code LeftFillGenerator} by specifying the necessary details of the seat search request.
+     *
+     * @param requestedNumberOfSeats number of seats to search for, must be positive.
+     * @param seatMap description of current seat states and arrangement.
+     */
     public LeftFillGenerator(int requestedNumberOfSeats, SeatMap seatMap) {
 
         this.seats = new StringListSeatMap(seatMap).getSeats();
@@ -34,6 +46,14 @@ class LeftFillGenerator {
         }
     }
 
+    /**
+     * Find all solutions to the request specified on construction.
+     * <p>
+     * The returned solution is represented as a list of {@code Point} objects which represent the location of the
+     * selected seats.
+     *
+     * @return The set of solutions found; or empty set if none are found.
+     */
     public Set<List<Point>> findAllSolutions() {
         if (requestedNumberOfSeats > 0 && isNumSeatsAvailable(requestedNumberOfSeats)) {
             for (int row = 0; row < rowSize; row++) {
@@ -43,6 +63,18 @@ class LeftFillGenerator {
             }
         }
         return resultSet;
+    }
+
+    /**
+     * Find all solutions to the request specified on construction with the additional option to break out of the search
+     * algorithm if the provided condition is met.
+     *
+     * @param breakEarlyCondition Condition to exit the search engine, cannot be null
+     * @return All calculated sultions up to the point where the break early condition was met.
+     * @throws UnsupportedOperationException This feature has not yet been implemented
+     */
+    public Set<List<Point>> findAllSolutions(Predicate<List<Point>> breakEarlyCondition) {
+        throw new UnsupportedOperationException("LeftFillGenerator does not support break early conditions");
     }
 
     private Set<List<Point>> findSolutions(Point seat) {
@@ -111,11 +143,11 @@ class LeftFillGenerator {
         return seats.get(row).get(col);
     }
 
+    /**
+     * Returns the minimum number of seats allowed per row based on the request size.
+     */
     private int getMinPerRowAmt() {
         return (requestedNumberOfSeats < 3) ? requestedNumberOfSeats : 3;
     }
 
-    public Set<List<Point>> findAllSolutions(Predicate<List<Point2D>> breakEarlyCondition) {
-        throw new UnsupportedOperationException("LeftFillGenerator does not support break early conditions");
-    }
 }

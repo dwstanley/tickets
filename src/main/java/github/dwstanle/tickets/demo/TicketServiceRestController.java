@@ -86,7 +86,7 @@ class TicketServiceRestController implements TicketService {
 
     @RequestMapping(value = "/demo/findAndHoldSeats", method = RequestMethod.GET)
     @ResponseBody
-    public SeatHold findAndHoldSeats(@RequestParam(name="numSeats") Integer numSeats, @RequestParam(name="customerEmail") String customerEmail) {
+    public SeatHold findAndHoldSeats(@RequestParam(name = "numSeats") Integer numSeats, @RequestParam(name = "customerEmail") String customerEmail) {
 
         Event event = eventRepository.findByName("demoEvent");
 
@@ -112,7 +112,7 @@ class TicketServiceRestController implements TicketService {
 
     @RequestMapping(value = "/demo/reserveSeats", method = RequestMethod.GET)
     @ResponseBody
-    public String reserveSeats(@RequestParam(name="seatHoldId") Integer seatHoldId, @RequestParam(name="customerEmail") String customerEmail) {
+    public String reserveSeats(@RequestParam(name = "seatHoldId") Integer seatHoldId, @RequestParam(name = "customerEmail") String customerEmail) {
         Account account = accountRepository.findByEmail(customerEmail);
         if (null == account) {
             account = accountRepository.save(new Account(customerEmail));

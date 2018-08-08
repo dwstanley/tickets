@@ -10,19 +10,22 @@ import static java.lang.Math.toIntExact;
 import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Implementation of {@code SeatMap} that stores seat statuses as a 2-dimensional list of strings.
+ */
 public class StringListSeatMap implements SeatMap {
 
     private final List<List<String>> seats;
+
+    public StringListSeatMap(List<List<String>> seats) {
+        this.seats = Objects.requireNonNull(seats);
+    }
 
     public StringListSeatMap(int numberOfRows, int numberOfCols) {
         this.seats = new ArrayList<>(numberOfCols);
         for (int i = 0; i < numberOfRows; i++) {
             this.seats.add(new ArrayList<>(Collections.nCopies(numberOfCols, AVAILABLE.getCode())));
         }
-    }
-
-    public StringListSeatMap(List<List<String>> seats) {
-        this.seats = Objects.requireNonNull(seats);
     }
 
     public StringListSeatMap(SeatMap seatMap) {
@@ -71,6 +74,11 @@ public class StringListSeatMap implements SeatMap {
         return copy;
     }
 
+    @Override
+    public String toString() {
+        return join("\n", seats.stream().map(s -> join(" ", s)).collect(toList()));
+    }
+
     public StringListSeatMap copy() {
         return new StringListSeatMap(SeatMapStrings.copy(seats));
     }
@@ -81,11 +89,6 @@ public class StringListSeatMap implements SeatMap {
 
     public void setSeat(int row, int col, String status) {
         seats.get(row).set(col, status);
-    }
-
-    @Override
-    public String toString() {
-        return join("\n", seats.stream().map(s -> join(" ", s)).collect(toList()));
     }
 
     public List<List<String>> getSeats() {

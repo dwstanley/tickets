@@ -5,6 +5,10 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * Representation of the state of 'seat' within a {@code SeatMap}. Because venues are not always symmetrical some seats
+ * are actually a representation of an obstacle and cannot be booked.
+ */
 public enum SeatStatus {
 
     AVAILABLE("A"),
@@ -29,8 +33,6 @@ public enum SeatStatus {
     SeatStatus(String code) {
         this.code = code;
     }
-
-
 
     public String getCode() {
         return code;

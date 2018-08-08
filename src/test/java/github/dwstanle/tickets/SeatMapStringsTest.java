@@ -4,6 +4,7 @@ import github.dwstanle.tickets.util.SeatMapStrings;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,7 +22,7 @@ public class SeatMapStringsTest {
     }
 
     @Test
-    public void fromPath() {
+    public void fromPath() throws IOException {
         List<List<String>> layout = SeatMapStrings.fromPath(testFile);
         assertEquals(SIMPLE_LAYOUT_STR, SeatMapStrings.toString(layout));
     }

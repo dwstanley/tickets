@@ -19,8 +19,9 @@ import static java.util.Optional.of;
  *
  * This implementation will limit the minimum number of seats allowed per row based on the request size to avoid
  * undesirable solution where one person in the group is left in a row alone.
+ *
  */
-class LeftFillGenerator {
+class LeftFillGenerator implements Generator {
 
     private final Set<List<Point>> resultSet = new LinkedHashSet<>();
     private final int requestedNumberOfSeats;
@@ -29,7 +30,7 @@ class LeftFillGenerator {
     private final int colSize;
 
     /**
-     * Constructs a new {@Code LeftFillGenerator} by specifying the necessary details of the seat search request.
+     * Constructs a new {@code LeftFillGenerator} by specifying the necessary details of the seat search request.
      *
      * @param requestedNumberOfSeats number of seats to search for, must be positive.
      * @param seatMap description of current seat states and arrangement.
@@ -54,6 +55,7 @@ class LeftFillGenerator {
      *
      * @return The set of solutions found; or empty set if none are found.
      */
+    @Override
     public Set<List<Point>> findAllSolutions() {
         if (requestedNumberOfSeats > 0 && isNumSeatsAvailable(requestedNumberOfSeats)) {
             for (int row = 0; row < rowSize; row++) {
@@ -73,6 +75,7 @@ class LeftFillGenerator {
      * @return All calculated sultions up to the point where the break early condition was met.
      * @throws UnsupportedOperationException This feature has not yet been implemented
      */
+    @Override
     public Set<List<Point>> findAllSolutions(Predicate<List<Point>> breakEarlyCondition) {
         throw new UnsupportedOperationException("LeftFillGenerator does not support break early conditions");
     }
@@ -143,7 +146,7 @@ class LeftFillGenerator {
         return seats.get(row).get(col);
     }
 
-    /**
+    /*
      * Returns the minimum number of seats allowed per row based on the request size.
      */
     private int getMinPerRowAmt() {

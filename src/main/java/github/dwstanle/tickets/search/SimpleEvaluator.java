@@ -17,7 +17,7 @@ import static github.dwstanle.tickets.SeatStatus.AVAILABLE;
 import static github.dwstanle.tickets.SeatStatus.HELD;
 import static java.util.Optional.empty;
 
-public class SimpleEvaluator {
+public class SimpleEvaluator implements Evaluator {
 
     private final SeatMap origin;
 
@@ -28,6 +28,7 @@ public class SimpleEvaluator {
         this.env = loadProperties("application.properties");
     }
 
+    @Override
     public Optional<Set<Seat>> findBest(Set<List<Point>> allSolutions) {
 
         // find best options from the view of the venue

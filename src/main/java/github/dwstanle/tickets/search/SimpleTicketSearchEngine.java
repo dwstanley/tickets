@@ -12,8 +12,8 @@ public class SimpleTicketSearchEngine implements TicketSearchEngine {
 
     @Override
     public Optional<Set<Seat>> findBestAvailable(int requestedNumberOfSeats, SeatMap seatMap) {
-        LeftFillGenerator generate = new LeftFillGenerator(requestedNumberOfSeats, seatMap);
-        SimpleEvaluator evaluate = new SimpleEvaluator(requestedNumberOfSeats, seatMap);
+        Generator generate = new LeftFillGenerator(requestedNumberOfSeats, seatMap);
+        Evaluator evaluate = new SimpleEvaluator(requestedNumberOfSeats, seatMap);
         return evaluate.findBest(generate.findAllSolutions());
     }
 

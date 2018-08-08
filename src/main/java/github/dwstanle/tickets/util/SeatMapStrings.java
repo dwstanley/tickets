@@ -22,17 +22,16 @@ public class SeatMapStrings {
                     "A A A A A A A A\n" +
                     "A A A A A A A A";
 
-    public static List<List<String>> fromPath(Path path) {
+    public static List<List<String>> fromPath(Path path) throws IOException {
         return fromPath(path, " ");
     }
 
-    public static List<List<String>> fromPath(Path path, String delimiter) {
+    public static List<List<String>> fromPath(Path path, String delimiter) throws IOException {
         List<List<String>> seatMap;
         try (Stream<String> lines = Files.lines(path)) {
             seatMap = fromLines(lines, delimiter);
         } catch (IOException ioe) {
-            seatMap = new ArrayList<>();
-            ioe.printStackTrace();
+            throw ioe;
         }
         return seatMap;
     }

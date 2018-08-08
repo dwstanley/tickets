@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +44,7 @@ public class TicketsApplication {
 		};
 	}
 
-	private String loadDemoStr() throws URISyntaxException {
+	private String loadDemoStr() throws URISyntaxException, IOException {
 		Path path = Paths.get(ClassLoader.getSystemResource("DemoLayout.csv").toURI());
 		return SeatMap.fromPath(path).toString();
 	}

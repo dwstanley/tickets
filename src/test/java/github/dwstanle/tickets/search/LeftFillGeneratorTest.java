@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.awt.*;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,7 +67,7 @@ public class LeftFillGeneratorTest {
     private StringListSeatMap loadSeatMap(String fileName) {
         try {
             return new StringListSeatMap(SeatMapStrings.fromPath(path(fileName)));
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
